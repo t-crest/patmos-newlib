@@ -13,6 +13,13 @@ _BEGIN_STD_C
 #define _JBLEN 24
 #endif
 
+#ifdef __PATMOS__
+/*
+ * sp,rsp,sb,so (anything else?)
+ */
+#define	_JBLEN	4
+#endif
+
 #ifdef __sparc__
 /*
  * onsstack,sigmask,sp,pc,npc,psr,g1,o0,wbcnt (sigcontext).

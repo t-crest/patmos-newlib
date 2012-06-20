@@ -92,6 +92,9 @@ esac
 # THIS TABLE IS ALPHA SORTED.  KEEP IT THAT WAY.
 
 case "${host_cpu}" in
+  patmos*)
+	machine_dir=patmos
+	;;
   a29k)
 	machine_dir=a29k
 	;;
@@ -547,6 +550,9 @@ case "${host}" in
 # UDI doesn't have exec, so system() should fail the right way
   a29k-amd-udi)
 	newlib_cflags="${newlib_cflags} -DNO_EXEC"
+	syscall_dir=syscalls
+	;;
+  patmos-*-elf)
 	syscall_dir=syscalls
 	;;
   arc-*-*)

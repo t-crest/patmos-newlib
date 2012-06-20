@@ -1,0 +1,65 @@
+
+
+
+                             PATMOS NEWLIB README
+
+
+
+This is a port of the newlib C library for the Patmos processor. We rely on LLVM
+as a compiler, such that all system libraries are compiled to LLVM byte-code
+(LLVM BC).
+
+
+--------------------------------------------------------------------------------
+1. Requirements
+
+ - LLVM and Clang for Patmos
+   https://github.com/t-crest/patmos-llvm
+   https://github.com/t-crest/patmos-clang
+
+ - really not much else
+
+
+--------------------------------------------------------------------------------
+2. Configure
+
+In order to configure the build correctly use the following command, assuming
+LLVM/Clang are installed unter ${LLVM_DIR}:
+
+  configure  --target=patmos-unknown-elf AR_FOR_TARGET=${LLVM_DIR}/bin/llvm-ar \
+    RANLIB_FOR_TARGET=${LLVM_DIR}/bin/llvm-ranlib \
+    LD_FOR_TARGET=${LLVM_DIR}/bin/llvm-ld \
+    CC_FOR_TARGET=${LLVM_DIR}/bin/clang \
+    CFLAGS_FOR_TARGET="-ccc-host-triple patmos-unknown-elf -O3" \
+    --prefix=${LLVM_DIR}
+
+This overrides some variables in order to use the LLVM tools and the Clang C
+compiler to generate LLVM-BC-based library and start-up files for Patmos. The
+library is configured to be installed under the LLVM install directory, since
+the LLVM/Clang tool chain refers to that location to search for includes and 
+libraries.
+
+
+--------------------------------------------------------------------------------
+3. Build and install
+
+That is simple:
+    make && make install
+
+--------------------------------------------------------------------------------
+4. Using Patmos' newlib
+
+The LLVM/Clang tool chain is configured to use Patmos' newlib port by default.
+All that needs to be done is to make sure that the Clang compiler generates
+Patmos code:
+
+  clang -ccc-host-triple patmos-unknown-elf -o test test.c
+
+This compiles test.c into an LLVM BC file, links that BC file with the
+LLVM-BC-based newlib library and start-up files and generates native Patmos code
+from there.
+
+
+Have fun!
+
+

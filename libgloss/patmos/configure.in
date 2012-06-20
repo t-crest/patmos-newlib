@@ -1,0 +1,55 @@
+dnl Copyright 2012 Florian Brandner
+dnl 
+dnl This file is part of the newlib C library for the Patmos processor.
+dnl 
+dnl This file is free software: you can redistribute it and/or modify
+dnl it under the terms of the GNU Lesser General Public License as published by
+dnl the Free Software Foundation, either version 3 of the License, or
+dnl (at your option) any later version.
+dnl 
+dnl This code is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl GNU Lesser General Public License for more details.
+dnl 
+dnl You should have received a copy of the GNU Lesser General Public License
+dnl (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
+    
+dnl Process this file with autoconf to produce a configure script.
+AC_PREREQ(2.59)
+AC_INIT(crt0.c)
+
+AC_CANONICAL_SYSTEM
+AC_ARG_PROGRAM
+
+if test "$srcdir" = "." ; then
+  mdir=`echo "${with_multisubdir}/" \
+    | sed -e 's,\([[^/]][[^/]]*\),..,g' -e 's,^/$,,'`
+  AC_CONFIG_AUX_DIR(${mdir}../../..)
+else
+  AC_CONFIG_AUX_DIR(${srcdir}/../..)
+fi
+
+AC_PROG_INSTALL
+
+LIB_AC_PROG_CC
+AS=${AS-as}
+AC_SUBST(AS)
+AR=${AR-ar}
+AC_SUBST(AR)
+LD=${LD-ld}
+AC_SUBST(LD)
+AC_PROG_RANLIB
+LIB_AM_PROG_AS
+
+host_makefile_frag=${srcdir}/../config/default.mh
+
+dnl We have to assign the same value to other variables because autoconf
+dnl doesn't provide a mechanism to substitute a replacement keyword with
+dnl arbitrary data or pathnames.
+dnl
+host_makefile_frag_path=$host_makefile_frag
+AC_SUBST(host_makefile_frag_path)
+AC_SUBST_FILE(host_makefile_frag)
+
+AC_OUTPUT(Makefile)

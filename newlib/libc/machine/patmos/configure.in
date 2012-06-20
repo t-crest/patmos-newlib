@@ -1,0 +1,31 @@
+dnl Copyright 2012 Florian Brandner
+dnl 
+dnl This file is part of the newlib C library for the Patmos processor.
+dnl 
+dnl This file is free software: you can redistribute it and/or modify
+dnl it under the terms of the GNU Lesser General Public License as published by
+dnl the Free Software Foundation, either version 3 of the License, or
+dnl (at your option) any later version.
+dnl 
+dnl This code is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl GNU Lesser General Public License for more details.
+dnl 
+dnl You should have received a copy of the GNU Lesser General Public License
+dnl (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
+    
+dnl This is the newlib/libc/machine/patmos configure.in file.
+dnl Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT([newlib],[NEWLIB_VERSION])
+AC_CONFIG_SRCDIR([setjmp.c])
+
+dnl Can't be done in NEWLIB_CONFIGURE because that confuses automake. 
+AC_CONFIG_AUX_DIR(../../../..)
+
+NEWLIB_CONFIGURE(../../..)
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
