@@ -1,0 +1,120 @@
+# Copyright 2012 Florian Brandner
+# 
+# This file is part of the newlib C library for the Patmos processor.
+# 
+# This file is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This code is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
+    
+DESTDIR =
+VPATH = @srcdir@ @srcdir@/..
+srcdir = @srcdir@
+objdir = .
+srcroot = $(srcdir)/../..
+objroot = $(objdir)/../..
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+host_alias = @host_alias@
+target_alias = @target_alias@
+
+bindir = @bindir@
+libdir = @libdir@
+tooldir = $(exec_prefix)/$(target_alias)
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+# Multilib support variables.
+# TOP is used instead of MULTI{BUILD,SRC}TOP.
+MULTIDIRS =
+MULTISUBDIR =
+
+SHELL =	/bin/sh
+
+CC = @CC@
+
+AS = @AS@
+AR = @AR@
+LD = @LD@
+RANLIB = @RANLIB@
+
+OBJDUMP = `if [ -f ${objroot}/../binutils/objdump ] ; \
+	then echo ${objroot}/../binutils/objdump ; \
+	else t='$(program_transform_name)'; echo objdump | sed -e $$t ; fi`
+OBJCOPY = `if [ -f ${objroot}/../binutils/objcopy ] ; \
+	then echo ${objroot}/../binutils/objcopy ; \
+	else t='$(program_transform_name)'; echo objcopy | sed -e $$t ; fi`
+
+OBJS		=
+CFLAGS		= -g
+SCRIPTS		= 
+ARFLAGS = cru
+
+# Here is all of the simulator stuff
+SIM_SCRIPTS	=
+SIM_LDFLAGS	=
+SIM_BSP		= libpatmos.a
+SIM_CRT0	= crt0.o
+SIM_OBJS	= open.o close.o read.o write.o lseek.o link.o unlink.o fstat.o\
+		  isatty.o getpid.o exec.o fork.o wait.o kill.o exit.o sbrk.o\
+		  times.o
+SIM_INSTALL	= install-sim
+
+# Host specific makefile fragment comes in here.
+@host_makefile_frag@
+
+#
+# build a test program for each target board. Just trying to get
+# it to link is a good test, so we ignore all the errors for now.
+#
+all: ${SIM_CRT0} ${OBJS} ${SIM_BSP}
+
+#
+# here's where we build the board support packages for each target
+#
+${SIM_BSP}: ${OBJS} ${SIM_OBJS}
+	${AR} ${ARFLAGS} ${SIM_BSP} ${SIM_OBJS} ${OBJS}
+	${RANLIB} ${SIM_BSP}
+
+#F
+# here's where we build the test programs for each target
+#
+.PHONY: test
+test:
+
+
+
+clean mostlyclean:
+	rm -f a.out core *.i *.o *-test *.srec *.dis *.x
+
+distclean maintainer-clean realclean: clean
+	rm -f Makefile config.status *~
+
+.PHONY: install info install-info clean-info
+install: ${SIM_INSTALL}
+
+install-sim:
+	set -e; for x in ${SIM_CRT0} ${SIM_BSP} ${SIM_SCRIPTS}; do ${INSTALL_DATA} $$x $(DESTDIR)${tooldir}/lib/$$x; done
+
+doc:
+info:
+install-info:
+clean-info:
+
+Makefile: Makefile.in config.status @host_makefile_frag_path@
+	$(SHELL) config.status
+
+config.status: configure
+	$(SHELL) config.status --recheck
