@@ -54,9 +54,9 @@ void _start()
 {
   // ---------------------------------------------------------------------------  
   // setup stack frame and stack cache.
-  asm("mov r31 = _shadow_stack_base; # initialize shadow stack pointer"
-      "mov r1  = _stack_cache_base;  # initialize the stack cache's top pointer"
-      "mts st  = r1;");
+  asm("mov $r31 = _shadow_stack_base ; # initialize shadow stack pointer\n\t"
+      "mov $r1  = _stack_cache_base    # initialize the stack cache's top pointer\n\t"
+      "mts $st  = $r1");
   
   // ---------------------------------------------------------------------------  
   // clear the BSS section
