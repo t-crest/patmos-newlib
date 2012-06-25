@@ -19,6 +19,9 @@
 /// start and end of BSS section
 extern int __bss_start, __bss_end;
 
+/// top of stack cache and shadow stack
+extern int _shadow_stack_base, _stack_cache_base;
+
 //******************************************************************************
 /// init - initializer, usually used to call C++ constructors.
 extern void __init();
@@ -54,9 +57,11 @@ void _start()
 {
   // ---------------------------------------------------------------------------  
   // setup stack frame and stack cache.
-  asm("mov $r31 = _shadow_stack_base ; # initialize shadow stack pointer\n\t"
-      "mov $r1  = _stack_cache_base    # initialize the stack cache's top pointer\n\t"
-      "mts $st  = $r1");
+  asm("mov $r31 = %0 ; # initialize shadow stack pointer\n\t"
+      "mov $r1  = %1   # initialize the stack cache's top pointer\n\t"
+      "mts $st  = $r1"
+      : 
+      : "r" (_shadow_stack_base), "r" (_stack_cache_base) );
   
   // ---------------------------------------------------------------------------  
   // clear the BSS section
