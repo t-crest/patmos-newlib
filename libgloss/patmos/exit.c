@@ -19,6 +19,7 @@
 /// _exit - halt the processor.
 void _exit()
 {
-  asm ("halt;");
+  asm volatile ("mts $sb = $r0;;"
+                "ret;;"); /// clear sb and return == halt
   while (1) /* do nothing */;
 }

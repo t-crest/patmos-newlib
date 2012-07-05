@@ -14,8 +14,10 @@
 // 
 // You should have received a copy of the GNU Lesser General Public License
 // (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
-    
+
+#include "patmos.h"
 #include <errno.h>
+#include <unistd.h>
 
 #undef errno
 extern int  errno;
@@ -24,7 +26,35 @@ extern int  errno;
 /// _read - read a file descriptor.
 int _read(int file, char *buf, int len)
 {
+  // stdin reads from the UART by default
+  if (file == STDIN_FILENO)
+  {
+    int i;
+
+    // read data
+    for(i = 0; i < len; i++)
+    {
+      char s, c;
+
+      // wait for data to be available from the UART
+      do
+      {
+        __PATMOS_UART_STATUS(s);
+      } while((s & __PATMOS_UART_DAV) == 0);
+
+      // read the data from the UART.
+      __PATMOS_UART_RD_DATA(c);
+
+      // copy data into the given buffer.
+      *buf++ = c;
+    }
+
+    // clear error code and return
+    errno = 0;
+    return len;
+  }
+
   // TODO: implement for simulator target
-  errno  = EBADF;
+  errno = EBADF;
   return -1;
 }

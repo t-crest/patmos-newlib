@@ -14,8 +14,10 @@
 // 
 // You should have received a copy of the GNU Lesser General Public License
 // (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
-    
+
+#include "patmos.h"
 #include <errno.h>
+#include <unistd.h>
 
 #undef errno
 extern int  errno;
@@ -24,6 +26,34 @@ extern int  errno;
 /// _write - write to a file descriptor.
 int _write(int file, char *buf, int nbytes)
 {
+  // stdout writes to the UART by default
+  if (file == STDOUT_FILENO)
+  {
+    int i;
+
+    // read data
+    for(i = 0; i < nbytes; i++)
+    {
+      char s, c;
+
+      // wait for the UART to be ready for transmission
+      do
+      {
+        __PATMOS_UART_STATUS(s);
+      } while((s & __PATMOS_UART_TRE) == 0);
+
+      // copy data into the given buffer.
+      c = *buf++;
+
+      // write data to the UART.
+      __PATMOS_UART_WR_DATA(c);
+    }
+
+    // clear error code and return
+    errno = 0;
+    return nbytes;
+  }
+
   // TODO: implement for simulator target
   errno  = EBADF;
   return -1;
