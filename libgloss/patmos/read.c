@@ -40,13 +40,23 @@ int _read(int file, char *buf, int len)
       do
       {
         __PATMOS_UART_STATUS(s);
-      } while((s & __PATMOS_UART_DAV) == 0);
+      } while((s & (__PATMOS_UART_DAV | __PATMOS_UART_PAE)) == 0);
 
-      // read the data from the UART.
-      __PATMOS_UART_RD_DATA(c);
+      // reached EOF?
+      if ((s & __PATMOS_UART_PAE) == 0)
+      {
+        // read the data from the UART.
+        __PATMOS_UART_RD_DATA(c);
 
-      // copy data into the given buffer.
-      *buf++ = c;
+        // copy data into the given buffer.
+        *buf++ = c;
+      }
+      else
+      {
+        // signal EOF
+        errno = 0;
+        return i;
+      }
     }
 
     // clear error code and return
