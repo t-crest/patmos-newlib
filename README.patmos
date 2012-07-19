@@ -39,6 +39,9 @@ library is configured to be installed under the LLVM install directory, since
 the LLVM/Clang tool chain refers to that location to search for includes and 
 libraries.
 
+optional options:
+  --enable-newlib-multithread=no
+  --disable-newlib-io-float
 
 --------------------------------------------------------------------------------
 3. Build and install
