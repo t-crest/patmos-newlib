@@ -17,9 +17,11 @@
     
 //******************************************************************************
 /// _exit - halt the processor.
-void _exit()
+void _exit(int status)
 {
-  asm volatile ("mts $sb = $r0;;"
-                "ret;;"); /// clear sb and return == halt
+  asm volatile ("mov $r1 = %0;;"  // store exit code
+                "mts $sb = $r0;;" // clear sb and return == halt
+                "ret;;"
+                 : : "r" (status));
   while (1) /* do nothing */;
 }

@@ -43,7 +43,7 @@ void *memset(void *s, int c, size_t n);
 extern int atexit(void (*function)(void));
 
 /// exit - terminate program.
-extern void _exit(int status) __attribute__((noinline));
+extern void exit(int status) __attribute__((noinline));
 
 //******************************************************************************
 /// __env - values of environment vairables.
@@ -88,10 +88,11 @@ void _start()
                 "bs  %0;;"      // invoke main function
                 "nop 0;;"
                 "nop 0;;"
-                "bs  %1;;"      // terminate program and invoke _exit
+                "mov $r3 = $r1;;" // get exit code
+                "bs  %1;;"        // terminate program and invoke exit
                 "nop 0;;"
                 "nop 0;;"
-                 : : "i" (&main), "i" (&_exit));
+                 : : "i" (&main), "i" (&exit));
 
   // ---------------------------------------------------------------------------
   // in case this returns
