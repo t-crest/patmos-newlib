@@ -20,11 +20,23 @@
 #undef errno
 extern int  errno;
 
+extern char __heap_start, __heap_end;
+
 //******************************************************************************
 /// _sbrk - get additional memory.
-int _sbrk(int nbytes)
+void *_sbrk(int nbytes)
 {
-  // TODO: implement for simulator target
-  errno  = ENOMEM;
-  return (void*)-1;
+  static char *heap_ptr = &__heap_start;
+
+  if (heap_ptr + nbytes >= &__heap_end)
+  {
+    errno  = ENOMEM;
+    return (void*)-1;
+  }
+  else
+  {
+    void *result = heap_ptr;
+    heap_ptr += nbytes;
+    return result;
+  }
 }
