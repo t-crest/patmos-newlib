@@ -16,6 +16,7 @@
 // (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
     
 #include <errno.h>
+#include <sys/time.h>
 
 #undef errno
 extern int  errno;
@@ -28,3 +29,19 @@ int _times(int nbytes)
   errno  = EACCES;
   return -1;
 }
+
+
+/* _gettimeofday -- implement in terms of time.  */
+int _gettimeofday (struct timeval *tv, void *tzvp)
+{
+    struct timezone *tz = tzvp;
+    if (tz)
+	tz->tz_minuteswest = tz->tz_dsttime = 0;
+
+    // TODO read out cycle counter, get usecs and secs since boot
+    tv->tv_usec = 0;
+    tv->tv_sec = _times (0);
+    return 0;
+}
+
+
