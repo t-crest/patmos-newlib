@@ -36,9 +36,6 @@ static inline unsigned long long _clock(void) {
     return (((unsigned long long) chi) << 32) | clo;
 }
 
-clock_t clock(void) {
-    return _clock();
-}
 
 //******************************************************************************
 /// _times - get timing information.
