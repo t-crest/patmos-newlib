@@ -18,16 +18,33 @@
 #include <errno.h>
 #include <sys/time.h>
 
+// TODO define CLOCKS_PER_SEC in sys/time, define clock_t as long long
+
+#define _CLOCKS_PER_SEC_ 100000000
+
+#define _CLOCKS_PER_USEC_ ((_CLOCKS_PER_SEC_) / 1000000)
+
 #undef errno
 extern int  errno;
+
+static inline unsigned long long _clock(void) {
+    unsigned clo, chi;
+
+    asm volatile ( "mfs %0 = $s7 ; mfs %1 = $s8"
+	 : "=r" (chi), "=r" (clo) : );
+
+    return (((unsigned long long) chi) << 32) | clo;
+}
+
+clock_t clock(void) {
+    return _clock();
+}
 
 //******************************************************************************
 /// _times - get timing information.
 int _times(int nbytes)
 {
-  // TODO: implement for simulator target
-  errno  = EACCES;
-  return -1;
+  return _clock() / _CLOCKS_PER_SEC_;
 }
 
 
@@ -38,9 +55,10 @@ int _gettimeofday (struct timeval *tv, void *tzvp)
     if (tz)
 	tz->tz_minuteswest = tz->tz_dsttime = 0;
 
-    // TODO read out cycle counter, get usecs and secs since boot
-    tv->tv_usec = 0;
-    tv->tv_sec = _times (0);
+    unsigned long long c = _clock();
+
+    tv->tv_usec = c / _CLOCKS_PER_USEC_;
+    tv->tv_sec = c / _CLOCKS_PER_SEC_;
     return 0;
 }
 
