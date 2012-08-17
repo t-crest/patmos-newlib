@@ -17,12 +17,10 @@
     
 #include <errno.h>
 #include <sys/time.h>
+#include <time.h>
 
-// TODO define CLOCKS_PER_SEC in sys/time, define clock_t as long long
 
-#define _CLOCKS_PER_SEC_ 100000000
-
-#define _CLOCKS_PER_USEC_ ((_CLOCKS_PER_SEC_) / 1000000)
+#define CLOCKS_PER_USEC ((CLOCKS_PER_SEC) / 1000000)
 
 #undef errno
 extern int  errno;
@@ -41,7 +39,7 @@ static inline unsigned long long _clock(void) {
 /// _times - get timing information.
 int _times(int nbytes)
 {
-  return _clock() / _CLOCKS_PER_SEC_;
+  return _clock() / CLOCKS_PER_SEC;
 }
 
 
@@ -54,8 +52,8 @@ int _gettimeofday (struct timeval *tv, void *tzvp)
 
     unsigned long long c = _clock();
 
-    tv->tv_usec = c / _CLOCKS_PER_USEC_;
-    tv->tv_sec = c / _CLOCKS_PER_SEC_;
+    tv->tv_usec = c / CLOCKS_PER_USEC;
+    tv->tv_sec = c / CLOCKS_PER_SEC;
     return 0;
 }
 

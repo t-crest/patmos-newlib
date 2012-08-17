@@ -17,10 +17,14 @@
     
 #include <setjmp.h>
 
-int setjmp_(jmp_buf env) 
+int setjmp(jmp_buf env) 
 {
+    // TODO setjmp is usually used to handle errors, ignore it for now,
+    // but we should throw an error or something if used! (call abort in longjmp?)
+    return 0;
 }
 
 void longjmp(jmp_buf env, int value)
 {
+    // TODO unsupported, call abort or something
 }
