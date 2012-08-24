@@ -83,8 +83,8 @@ void _start()
   // invoke main -- without command line options
   // we use asm to prevent LLVM from inlining into a naked function here
   
-  asm volatile ("li  $r1 = 0;;"
-                "li  $r2 = 0;;"
+  asm volatile ("li  $r3 = 0;;"
+                "li  $r4 = 0;;"
                 "bs  %0;;"      // invoke main function
                 "nop 0;;"
                 "nop 0;;"
