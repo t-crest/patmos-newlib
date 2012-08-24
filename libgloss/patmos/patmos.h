@@ -20,11 +20,17 @@
 #ifndef __PATMOS__H
 #define __PATMOS__H
 
+/// linker symbol giving the address of the UART status register
+extern char _uart_status_base;
+
+/// linker symbol giving the address of the UART data register
+extern char _uart_data_base;
+
 /// Address to access the status register of the UART coming with Patmos
-#define __PATMOS_UART_STATUS_ADDR 0x80000000
+#define __PATMOS_UART_STATUS_ADDR (&_uart_status_base)
 
 /// Address to access the data register of the UART coming with Patmos
-#define __PATMOS_UART_DATA_ADDR 0x80000001
+#define __PATMOS_UART_DATA_ADDR (&_uart_data_base)
 
 
 /// Bit mask for the transmit-ready bit (TRE)
