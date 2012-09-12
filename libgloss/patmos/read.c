@@ -34,7 +34,7 @@ int _read(int file, char *buf, int len)
     // read data
     for(i = 0; i < len; i++)
     {
-      char s, c;
+      int s, c;
 
       // wait for data to be available from the UART
       do
@@ -49,7 +49,7 @@ int _read(int file, char *buf, int len)
         __PATMOS_UART_RD_DATA(c);
 
         // copy data into the given buffer.
-        *buf++ = c;
+        *buf++ = c & 0xff;
       }
       else
       {

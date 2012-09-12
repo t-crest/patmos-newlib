@@ -34,7 +34,7 @@ int _write(int file, char *buf, int nbytes)
     // read data
     for(i = 0; i < nbytes; i++)
     {
-      char s, c;
+      int s, c;
 
       // wait for the UART to be ready for transmission
       do
@@ -43,7 +43,7 @@ int _write(int file, char *buf, int nbytes)
       } while((s & __PATMOS_UART_TRE) == 0);
 
       // copy data into the given buffer.
-      c = *buf++;
+      c = (*buf++) & 0xff;
 
       // write data to the UART.
       __PATMOS_UART_WR_DATA(c);

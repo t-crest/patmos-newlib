@@ -44,12 +44,12 @@ extern char _uart_data_base;
 
 
 /// Macro to read the UART's status register
-#define __PATMOS_UART_STATUS(res) asm volatile ("lbl %0 = [%1];;" : "=r" (res) : "r" (__PATMOS_UART_STATUS_ADDR));
+#define __PATMOS_UART_STATUS(res) asm volatile ("lwl %0 = [%1];;" : "=r" (res) : "r" (__PATMOS_UART_STATUS_ADDR));
 
 /// Macro to read the UART's data register
-#define __PATMOS_UART_RD_DATA(res) asm volatile ("lbl %0 = [%1];;" : "=r" (res) : "r" (__PATMOS_UART_DATA_ADDR));
+#define __PATMOS_UART_RD_DATA(res) asm volatile ("lwl %0 = [%1];;" : "=r" (res) : "r" (__PATMOS_UART_DATA_ADDR));
 
 /// Macro to write the UART's data register
-#define __PATMOS_UART_WR_DATA(data) asm volatile ("sbl [%0] = %1;;" : : "r" (__PATMOS_UART_DATA_ADDR), "r" (data));
+#define __PATMOS_UART_WR_DATA(data) asm volatile ("swl [%0] = %1;;" : : "r" (__PATMOS_UART_DATA_ADDR), "r" (data));
 
 #endif // __PATMOS__H
