@@ -27,7 +27,7 @@ extern int  errno;
 int _write(int file, char *buf, int nbytes)
 {
   // stdout writes to the UART by default
-  if (file == STDOUT_FILENO)
+  if (file == STDOUT_FILENO || file == STDERR_FILENO)
   {
     int i;
 
