@@ -22,6 +22,9 @@
 #undef errno
 extern int  errno;
 
+// defined in lseek.c
+extern int  __patmos_stdin_offset;
+
 //******************************************************************************
 /// _read - read a file descriptor.
 int _read(int file, char *buf, int len)
@@ -53,11 +56,17 @@ int _read(int file, char *buf, int len)
       }
       else
       {
+	// keep track of offset for lseek
+	__patmos_stdin_offset += i;
+
         // signal EOF
         errno = 0;
         return i;
       }
     }
+
+    // keep track of offset for lseek
+    __patmos_stdin_offset += len;
 
     // clear error code and return
     errno = 0;
