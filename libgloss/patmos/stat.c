@@ -18,6 +18,8 @@
 #include "patmos.h"
 #include <errno.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #undef errno
 extern int  errno;
