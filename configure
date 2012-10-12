@@ -7408,6 +7408,17 @@ case " $target_configdirs " in
       # so we don't want to discard standard headers.
       FLAGS_FOR_TARGET=`echo " $FLAGS_FOR_TARGET " | sed -e 's/ -nostdinc / /'`
       ;;
+   patmos-*)
+      # Similar to the generic case below, but we do not add -L flags to avoid warnings
+      FLAGS_FOR_TARGET=$FLAGS_FOR_TARGET' -B$$r/$(TARGET_SUBDIR)/newlib/ -isystem $$r/$(TARGET_SUBDIR)/newlib/targ-include -isystem $$s/newlib/libc/include'
+
+      case " $target_configdirs " in
+	*" libgloss "*)
+	# Look for startup file, simulator library and maybe linker script.
+	FLAGS_FOR_TARGET=$FLAGS_FOR_TARGET' -B$$r/$(TARGET_SUBDIR)/libgloss/'"$libgloss_dir"
+	;;
+      esac
+      ;;
    *)
       # If we're building newlib, use its generic headers last, but search
       # for any libc-related directories first (so make it the last -B
