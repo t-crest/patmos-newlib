@@ -62,7 +62,7 @@ void _start()
 {
   // ---------------------------------------------------------------------------  
   // setup stack frame and stack cache.
-  asm volatile ("mov $r31 = %0;;" // initialize shadow stack pointer"
+  asm volatile ("mov $r29 = %0;;" // initialize shadow stack pointer"
                 "mts $st  = %1;;" // initialize the stack cache's top pointer"
                  : : "r" (&_shadow_stack_base), "r" (&_stack_cache_base));
 
@@ -83,16 +83,15 @@ void _start()
   // invoke main -- without command line options
   // we use asm to prevent LLVM from inlining into a naked function here
   
-  asm volatile ("li   $r3 = 0;;"
-                "li   $r4 = 0;;"
-                "call %0;;"      // invoke main function
+  asm volatile ("li   $r3 = 0;;" // argc
+                "li   $r4 = 0;;" // argv
+                "call %1;;"      // invoke main function
+                "li   $r30 = %0;;" // set function base (in delay slot)
                 "nop  ;;"
+                "call %2;;"        // terminate program and invoke exit
+                "mov  $r3 = $r1;;" // get exit code (in delay slot)
                 "nop  ;;"
-                "mov  $r3 = $r1;;" // get exit code
-                "call %1;;"        // terminate program and invoke exit
-                "nop  ;;"
-                "nop  ;;"
-                 : : "i" (&main), "i" (&exit));
+                 : : "i" (&_start), "i" (&main), "i" (&exit));
 
   // ---------------------------------------------------------------------------
   // in case this returns
