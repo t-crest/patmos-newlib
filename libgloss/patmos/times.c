@@ -1,3 +1,4 @@
+// Copyright 2012 Stefan Hepp
 // Copyright 2012 Florian Brandner
 // 
 // This file is part of the newlib C library for the Patmos processor.
@@ -17,6 +18,7 @@
     
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/times.h>
 #include <time.h>
 
 
@@ -24,6 +26,7 @@
 
 #undef errno
 extern int  errno;
+
 
 static inline unsigned long long _clock(void) {
     unsigned clo, chi;
@@ -37,24 +40,34 @@ static inline unsigned long long _clock(void) {
 
 //******************************************************************************
 /// _times - get timing information.
-clock_t _times (struct tms* times)
+///
+/// Used by _times_r(), times() and clock().
+/// Note that clock() returns clock ticks in terms of CLOCKS_PER_SEC, while times() 
+/// returns clock ticks in terms of sysconf(_SC_CLK_TCK), but in newlib clock() uses
+/// _times_r().
+///
+clock_t _times (struct tms* buf)
 {
     unsigned long long ticks;
     ticks = _clock();
-    tms->tms_stime = ticks;
-    tms->tms_utime = 0;
-    tms->tms_cutime = 0;
-    tms->tms_cstime = 0;
+    buf->tms_utime = ticks;	// user time
+    buf->tms_stime = 0;		// system time
+    buf->tms_cutime = 0;	// childs user time
+    buf->tms_cstime = 0;	// childs sys time
     return ticks;
 }
 
 
-/* _gettimeofday -- implement in terms of time.  */
+/// _gettimeofday -- implement in terms of time.
+///
+/// Used by gettimeofday(), time().
+///
 int _gettimeofday (struct timeval *tv, void *tzvp)
 {
     struct timezone *tz = tzvp;
-    if (tz)
+    if (tz) {
 	tz->tz_minuteswest = tz->tz_dsttime = 0;
+    }
 
     unsigned long long c = _clock();
 
