@@ -37,9 +37,15 @@ static inline unsigned long long _clock(void) {
 
 //******************************************************************************
 /// _times - get timing information.
-int _times(int nbytes)
+clock_t _times (struct tms* times)
 {
-  return _clock() / CLOCKS_PER_SEC;
+    unsigned long long ticks;
+    ticks = _clock();
+    tms->tms_stime = ticks;
+    tms->tms_utime = 0;
+    tms->tms_cutime = 0;
+    tms->tms_cstime = 0;
+    return ticks;
 }
 
 
