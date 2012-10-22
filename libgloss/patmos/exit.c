@@ -20,10 +20,10 @@
 void _exit(int status)
 {
   asm volatile ("mov $r1 = %0;;"  // store exit code
-                "mts $sb = $r0;;" // clear sb and return == halt
-                "ret;;"
-		"nop 0;;"
-		"nop 0;;"
+                "mov $r30 = $r0;;" // clear sb and return == halt
+                "ret $r0, $r0;;"
+		"nop;;"
+		"nop;;"
                  : : "r" (status));
   while (1) /* do nothing */;
 }
