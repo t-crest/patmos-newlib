@@ -1,4 +1,4 @@
-// Copyright 2012 Florian Brandner
+// Copyright 2012 Stefan Hepp
 // 
 // This file is part of the newlib C library for the Patmos processor.
 // 
@@ -23,39 +23,11 @@
 extern int  errno;
 
 //******************************************************************************
-/// _write - write to a file descriptor.
-int _write(int file, char *buf, int nbytes)
+/// ftruncate - truncate a file
+int ftruncate (int file, off_t length)
 {
-  // stdout writes to the UART by default
-  //if (file == STDOUT_FILENO || file == STDERR_FILENO)
-  if (file == STDOUT_FILENO)
-  {
-    int i;
-
-    // read data
-    for(i = 0; i < nbytes; i++)
-    {
-      int s, c;
-
-      // wait for the UART to be ready for transmission
-      do
-      {
-        __PATMOS_UART_STATUS(s);
-      } while((s & __PATMOS_UART_TRE) == 0);
-
-      // copy data into the given buffer.
-      c = (*buf++) & 0xff;
-
-      // write data to the UART.
-      __PATMOS_UART_WR_DATA(c);
-    }
-
-    // clear error code and return
-    errno = 0;
-    return nbytes;
-  }
-
-  // TODO: implement for simulator target
-  errno  = EBADF;
-  return -1;
+    // TODO implement for simulator target
+    errno = EBADF;
+    return -1;
 }
+
