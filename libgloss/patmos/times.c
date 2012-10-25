@@ -31,7 +31,7 @@ extern int  errno;
 static inline unsigned long long _clock(void) {
     unsigned clo, chi;
 
-    asm volatile ( "mfs %0 = $s7 ; mfs %1 = $s8"
+    asm volatile ( "mfs %0 = $s8 ; mfs %1 = $s7"
 	 : "=r" (chi), "=r" (clo) : );
 
     return (((unsigned long long) chi) << 32) | clo;
