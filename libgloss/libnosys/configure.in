@@ -43,7 +43,7 @@ case "${target}" in
 	;;
   a29k-amd-udi)
 	;;
-  patmos-*-elf)
+  patmos-*-elf|patmos-*-*-elf|patmos-*-rtems*)
 	;;
   arc-*-*)
 	;;
