@@ -552,7 +552,7 @@ case "${host}" in
 	newlib_cflags="${newlib_cflags} -DNO_EXEC"
 	syscall_dir=syscalls
 	;;
-  patmos-*-elf)
+  patmos-*-elf|patmos-*-*-elf|patmos-*-rtems*)
 	default_newlib_io_c99_formats="yes"
 	default_newlib_io_long_long="yes"
 	syscall_dir=syscalls

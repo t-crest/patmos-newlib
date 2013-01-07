@@ -26,11 +26,11 @@ as a compiler, such that all system libraries are compiled to LLVM byte-code
 In order to configure the build correctly use the following command, assuming
 LLVM/Clang are installed unter ${LLVM_DIR}:
 
-  configure  --target=patmos-unknown-elf AR_FOR_TARGET=${LLVM_DIR}/bin/llvm-ar \
+  configure  --target=patmos-unknown-unknown-elf AR_FOR_TARGET=${LLVM_DIR}/bin/llvm-ar \
     RANLIB_FOR_TARGET=${LLVM_DIR}/bin/llvm-ranlib \
     LD_FOR_TARGET=${LLVM_DIR}/bin/llvm-ld \
     CC_FOR_TARGET=${LLVM_DIR}/bin/clang \
-    CFLAGS_FOR_TARGET="-target patmos-unknown-elf -O3" \
+    CFLAGS_FOR_TARGET="-target patmos-unknown-unknown-elf -O3" \
     --prefix=${LLVM_DIR}
 
 This overrides some variables in order to use the LLVM tools and the Clang C
@@ -56,7 +56,7 @@ The LLVM/Clang tool chain is configured to use Patmos' newlib port by default.
 All that needs to be done is to make sure that the Clang compiler generates
 Patmos code:
 
-  clang -target patmos-unknown-elf -o test test.c
+  clang -target patmos-unknown-unknown-elf -o test test.c
 
 This compiles test.c into an LLVM BC file, links that BC file with the
 LLVM-BC-based newlib library and start-up files and generates native Patmos code

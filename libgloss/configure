@@ -2391,7 +2391,7 @@ config_testsuite=true
 config_libnosys=true
 
 case "${target}" in
-  patmos-*-elf)
+  patmos-*-elf|patmos-*-*-elf|patmos-*-rtems*)
 	subdirs="$subdirs patmos"
 
 	;;

@@ -34,7 +34,7 @@ dnl indicates whether to run configure within the libnosys subdirectory
 config_libnosys=true
 
 case "${target}" in
-  patmos-*-elf)
+  patmos-*-elf|patmos-*-*-elf|patmos-*-rtems*)
 	AC_CONFIG_SUBDIRS([patmos])
 	;;
   i[[3456]]86-*-elf* | i[[3456]]86-*-coff*)
