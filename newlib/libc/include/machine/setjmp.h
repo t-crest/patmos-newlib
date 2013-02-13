@@ -15,9 +15,9 @@ _BEGIN_STD_C
 
 #ifdef __PATMOS__
 /*
- * sp,rsp,sb,so (anything else?)
+ * r20..r31, s0, s6
  */
-#define	_JBLEN	4
+#define	_JBLEN	14
 #endif
 
 #ifdef __sparc__
