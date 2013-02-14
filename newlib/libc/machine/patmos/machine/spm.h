@@ -42,6 +42,10 @@
 extern unsigned spm_block_shift;
 
 
+static inline void spm_init(void)
+{
+    // Does not do anything at the moment, maybe we need to initialize something later
+}
 
 static inline void spm_wait(void)
 {
@@ -84,36 +88,42 @@ static inline void * spm_align_floor(void * test)
 
 
 
-static inline void spm_copy_from_ext(_SPM void * dest, const void * src, size_t size)
+static inline void spm_copy_from_ext(_SPM void * dst, const void * src, size_t size)
 {
+    _SPM  char *to   = (_SPM  char*) dst;
+    const char *from = (const char*) src;
+
     // lets have some fun ;)
     size_t n = (size + 7) / 8;
     switch (size % 8) {
-    case 0: do {  *(dst++) = *(from++);
-    case 7:       *(dst++) = *(from++);
-    case 6:       *(dst++) = *(from++);
-    case 5:       *(dst++) = *(from++);
-    case 4:       *(dst++) = *(from++);
-    case 3:       *(dst++) = *(from++);
-    case 2:       *(dst++) = *(from++);
-    case 1:       *(dst++) = *(from++);
+    case 0: do {  *(to++) = *(from++);
+    case 7:       *(to++) = *(from++);
+    case 6:       *(to++) = *(from++);
+    case 5:       *(to++) = *(from++);
+    case 4:       *(to++) = *(from++);
+    case 3:       *(to++) = *(from++);
+    case 2:       *(to++) = *(from++);
+    case 1:       *(to++) = *(from++);
 	       } while (--n > 0);
     }
 }
 
-static inline void spm_copy_to_ext(void * dest, _SPM const void * src, size_t size)
+static inline void spm_copy_to_ext(void * dst, _SPM const void * src, size_t size)
 {
+               char *to   = (     char*) dst;
+    _SPM const char *from = (_SPM const char*) src;
+
     // lets have some fun ;)
     size_t n = (size + 7) / 8;
     switch (size % 8) {
-    case 0: do {  *(dst++) = *(from++);
-    case 7:       *(dst++) = *(from++);
-    case 6:       *(dst++) = *(from++);
-    case 5:       *(dst++) = *(from++);
-    case 4:       *(dst++) = *(from++);
-    case 3:       *(dst++) = *(from++);
-    case 2:       *(dst++) = *(from++);
-    case 1:       *(dst++) = *(from++);
+    case 0: do {  *(to++) = *(from++);
+    case 7:       *(to++) = *(from++);
+    case 6:       *(to++) = *(from++);
+    case 5:       *(to++) = *(from++);
+    case 4:       *(to++) = *(from++);
+    case 3:       *(to++) = *(from++);
+    case 2:       *(to++) = *(from++);
+    case 1:       *(to++) = *(from++);
 	       } while (--n > 0);
     }
 }

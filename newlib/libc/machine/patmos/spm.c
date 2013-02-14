@@ -17,6 +17,8 @@
 //
 // This code is partially based on Jack Witham's spmsort package.
 //
+
+#include <assert.h>
     
 #include <machine/spm.h>
 
@@ -31,7 +33,7 @@ void spm_memcpy(void * dest, const void * source, size_t size)
     unsigned num_blocks = ~0;
     unsigned spm_block_size = (4 << spm_block_shift);
 
-    /* assert (source_offset == dest_offset); */
+    assert (source_offset == dest_offset);
     if (size == 0) return;
 
     /* Effortless copy when the alignments match */
