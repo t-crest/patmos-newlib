@@ -1,4 +1,5 @@
 // Copyright 2012 Florian Brandner
+//           2013 Stefan Hepp
 // 
 // This file is part of the newlib C library for the Patmos processor.
 // 
@@ -18,9 +19,10 @@
 #include <setjmp.h>
 
 // Note: This cannot be a .S file since we compile newlib as bitcode archives.
+// Note: naked should imply noinline, just want to make sure. Must be a proper call 
+//       as the compiler needs to generate sens afterwards.
 
-int setjmp(jmp_buf env) __attribute__((naked));
-
+int setjmp(jmp_buf env) __attribute__((naked,noinline));
 int setjmp(jmp_buf env) 
 {
     // TODO $s6 is currently defined to store the last spill address, not the TOS.
@@ -55,8 +57,7 @@ int setjmp(jmp_buf env)
     return res;
 }
 
-void longjmp(jmp_buf env, int value) __attribute__((naked));
-
+void longjmp(jmp_buf env, int value) __attribute__((naked,noinline));
 void longjmp(jmp_buf env, int value)
 {
     // Restore all callee-saved registers, predicates and TOS of stack cache
