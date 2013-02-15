@@ -38,6 +38,7 @@
 #define SPM_BASE            0x00000000
 #define SPM_HIGH            0x00000fff
 #define SPM_SIZE            (1 + SPM_HIGH - SPM_BASE)
+#define SPM_WORDS	    (SPM_SIZE/4)
 
 extern unsigned spm_block_shift;
 
@@ -62,7 +63,6 @@ static inline unsigned spm_is_busy(void)
 static inline void spm_set_block_size(unsigned bs)
 {
     spm_block_shift = ((bs >> 16) & 0xf);
-    asm volatile("cput %0, rfsl0\n" : : "r"(bs));
 }
 
 static inline int spm_is_aligned(const void * test)
