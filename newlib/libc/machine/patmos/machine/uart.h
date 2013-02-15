@@ -26,11 +26,27 @@
 
 
 /**
+ * Send some raw data of len bytes over UART.
+ */
+static inline void uart_send(const void* data, size_t len)
+{
+    _write(STDOUT_FILENO, data, len);
+}
+
+/**
  * Print a zero-terminated string to UART.
  */
 static inline void uart_print(const char* str)
 {
-    _write(STDOUT_FILENO, str, strlen(str));
+    size_t len = strlen(str);
+    if (len > 0) {
+	_write(STDOUT_FILENO, str, len);
+    }
+}
+
+static inline void uart_printc(char c)
+{
+    _write(STDOUT_FILENO, &c, 1);
 }
 
 /**
@@ -38,12 +54,73 @@ static inline void uart_print(const char* str)
  */
 static inline void uart_println(const char* str)
 {
-    _write(STDOUT_FILENO, str, strlen(str));
-    _write(STDOUT_FILENO, "\n", 1);
+    uart_print(str);
+    uart_printc('\n');
 }
 
+static inline void uart_int(long long int i) 
+{
+    char s[19];
+    unsigned len = 0;
+    char *p = s + 19;
 
-// TODO define a few more helpers to print out numbers without resorting to printf
+    if (i < 0) {
+	char c = '-';
+	_write(STDOUT_FILENO, &c, 1);
+    }
+
+    long long unsigned rem = abs(i);
+    do {
+	*(--p) = '0' + (rem % 10);
+	rem = rem / 10;
+	len++;
+    } while (rem > 0 && len < 19);
+    
+    _write(STDOUT_FILENO, p, len);
+}
+
+static inline void uart_hex(long long unsigned i, unsigned digits)
+{
+    char s[16];
+    unsigned len = 0;
+    char *p = s + 16;
+
+    do {
+	char c = (i & 0xf);
+	*(--p) = c < 10 ? '0' + c : 'a' + c - 10;
+	i = i / 16;
+	len++;
+	if (len == 16) break;
+    } while ((digits > 0 && len < digits) || (digits == 0 && i > 0));
+    
+    _write(STDOUT_FILENO, p, len);
+}
+
+static inline void uart_printd(const char* str, long long int i)
+{
+    uart_print(str);
+    uart_int(i);
+}
+
+static inline void uart_printh(const char* str, long long unsigned i, unsigned digits) 
+{
+    uart_print(str);
+    uart_hex(i, digits);
+}
+
+static inline void uart_printdln(const char* str, long long int i)
+{
+    uart_print(str);
+    uart_int(i);
+    uart_printc('\n');
+}
+
+static inline void uart_printhln(const char* str, long long unsigned i, unsigned digits) 
+{
+    uart_print(str);
+    uart_hex(i, digits);
+    uart_printc('\n');
+}
 
 
 #endif /* _MACHUART_H */
