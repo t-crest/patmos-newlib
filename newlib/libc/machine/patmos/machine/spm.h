@@ -33,15 +33,18 @@
 
 
 /**
- * Address ranges for SPM memory
+ * Address ranges for SPM memory.
+ * Default SPM size is 2k.
  */
 #define SPM_BASE            0x00000000
-#define SPM_HIGH            0x00000fff
+#define SPM_HIGH            0x000007ff
 #define SPM_SIZE            (1 + SPM_HIGH - SPM_BASE)
 #define SPM_WORDS	    (SPM_SIZE/4)
 
-extern unsigned spm_block_shift;
 
+/***********************************************************/
+/* SPM initialization and control functions                */
+/***********************************************************/
 
 static inline void spm_init(void)
 {
@@ -60,18 +63,45 @@ static inline unsigned spm_is_busy(void)
 
 
 
+/***********************************************************/
+/* SPM alignment helper functions                          */
+/***********************************************************/
+
+extern unsigned spm_block_shift;
+
 static inline void spm_set_block_size(unsigned bs)
 {
     spm_block_shift = ((bs >> 16) & 0xf);
 }
 
-static inline int spm_is_aligned(const void * test)
+static inline int spm_is_aligned(_SPM const void * test)
 {
     unsigned t = (unsigned) test;
     return !(t & ((4 << spm_block_shift) - 1));
 }
 
-static inline void * spm_align_ceil(void * test)
+static inline _SPM void * spm_align_ceil(_SPM void * test)
+{
+    unsigned t = (unsigned) test;
+    t |= ((4 << spm_block_shift) - 1);
+    t++;
+    return (_SPM void *) t;
+}
+
+static inline _SPM void * spm_align_floor(_SPM void * test)
+{
+    unsigned t = (unsigned) test;
+    t &= ~((4 << spm_block_shift) - 1);
+    return (_SPM void *) t;
+}
+
+static inline int spm_data_is_aligned(const void * test)
+{
+    unsigned t = (unsigned) test;
+    return !(t & ((4 << spm_block_shift) - 1));
+}
+
+static inline void * spm_data_align_ceil(void * test)
 {
     unsigned t = (unsigned) test;
     t |= ((4 << spm_block_shift) - 1);
@@ -79,7 +109,7 @@ static inline void * spm_align_ceil(void * test)
     return (void *) t;
 }
 
-static inline void * spm_align_floor(void * test)
+static inline void * spm_data_align_floor(void * test)
 {
     unsigned t = (unsigned) test;
     t &= ~((4 << spm_block_shift) - 1);
@@ -87,6 +117,9 @@ static inline void * spm_align_floor(void * test)
 }
 
 
+/***********************************************************/
+/* SPM memory block transfer functions                     */
+/***********************************************************/
 
 static inline void spm_copy_from_ext(_SPM void * dst, const void * src, size_t size)
 {
