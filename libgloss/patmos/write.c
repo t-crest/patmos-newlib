@@ -26,9 +26,12 @@ extern int  errno;
 /// _write - write to a file descriptor.
 int _write(int file, char *buf, int nbytes)
 {
-  // stdout writes to the UART by default
-  //if (file == STDOUT_FILENO || file == STDERR_FILENO)
-  if (file == STDOUT_FILENO)
+  // stdout and stderr write both to the UART by default
+  // TODO we could add a flag that can be set at runtime to disable stderr on UART,
+  //      or we could insert some control bytes into the stream to switch between 
+  //      stdout and stderr and use a small program on the host to demux the streams.
+  //if (file == STDOUT_FILENO)
+  if (file == STDOUT_FILENO || file == STDERR_FILENO)
   {
     int i;
 
