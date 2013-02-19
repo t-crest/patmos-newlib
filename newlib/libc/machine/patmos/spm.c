@@ -26,8 +26,8 @@ unsigned spm_block_shift = 0;
 
 void spm_memcpy(void * dest, const void * source, size_t size)
 {
-    unsigned char * source_aligned = spm_align_floor((void *) source);
-    unsigned char * dest_aligned = spm_align_floor((void *) dest);
+    unsigned char * source_aligned = spm_data_align_floor((void *) source);
+    unsigned char * dest_aligned = spm_data_align_floor((void *) dest);
     unsigned source_offset = (unsigned char *) source - source_aligned;
     unsigned dest_offset = (unsigned char *) dest - dest_aligned;
     unsigned num_blocks = ~0;
