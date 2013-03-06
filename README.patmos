@@ -26,10 +26,10 @@ as a compiler, such that all system libraries are compiled to LLVM byte-code
 In order to configure the build correctly use the following command, assuming
 LLVM/Clang are installed unter ${LLVM_DIR}:
 
-  configure  --target=patmos-unknown-unknown-elf AR_FOR_TARGET=${LLVM_DIR}/bin/llvm-ar \
-    RANLIB_FOR_TARGET=${LLVM_DIR}/bin/llvm-ranlib \
-    LD_FOR_TARGET=${LLVM_DIR}/bin/llvm-ld \
-    CC_FOR_TARGET=${LLVM_DIR}/bin/clang \
+  configure  --target=patmos-unknown-unknown-elf AR_FOR_TARGET=${LLVM_DIR}/bin/patmos-llvm-ar \
+    RANLIB_FOR_TARGET=${LLVM_DIR}/bin/patmos-llvm-ranlib \
+    LD_FOR_TARGET=${LLVM_DIR}/bin/patmos-llvm-ld \
+    CC_FOR_TARGET=${LLVM_DIR}/bin/patmos-clang \
     CFLAGS_FOR_TARGET="-target patmos-unknown-unknown-elf -O3" \
     --prefix=${LLVM_DIR}
 
