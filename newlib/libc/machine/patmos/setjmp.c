@@ -45,8 +45,8 @@ int setjmp(jmp_buf env)
 	swc  [%1 + 9] = $r29	    \n\
 	swc  [%1 + 10] = $r30	    \n\
 	swc  [%1 + 11] = $r31	    \n\
-	sres 0x3FFFFF		    \n\
-	sfree 0x3FFFFF		    \n\
+	sres 0x3FFFF		    \n\
+	sfree 0x3FFFF		    \n\
 	mfs  $r9  = $s0		    \n\
 	mfs  $r10 = $s6		    \n\
 	swc  [%1 + 12] = $r9	    \n\
@@ -76,8 +76,8 @@ void longjmp(jmp_buf env, int value)
 	lwc $r31 = [%0 + 11] \n\
 	lwc $r9  = [%0 + 12] \n\
 	lwc $r10 = [%0 + 13] \n\
-	sres 0x3FFFFF	     \n\
-	sfree 0x3FFFFF	     \n\
+	sres 0x3FFFF	     \n\
+	sfree 0x3FFFF	     \n\
 	mov $r1 = %1 	     \n\
 	ret $r30, $r31	     \n\
 	mts $s6 = $r10       \n\
