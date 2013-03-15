@@ -56,7 +56,7 @@ char **environ = __env;
 //******************************************************************************
 /// _start - main entry function to all patmos executables.
 /// Setup the stack frame, initialize data structures, invoke main, et cetera.
-void _start() __attribute__((naked));
+void _start() __attribute__((naked,used));
 
 void _start()
 {
