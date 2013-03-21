@@ -23,6 +23,7 @@
 #define _MACHUART_H
 
 #include <unistd.h>
+#include <stdlib.h>
 
 
 /**
@@ -69,7 +70,7 @@ static inline void uart_int(long long int i)
 	_write(STDOUT_FILENO, &c, 1);
     }
 
-    long long unsigned rem = abs(i);
+    long long unsigned rem = llabs(i);
     do {
 	*(--p) = '0' + (rem % 10);
 	rem = rem / 10;
