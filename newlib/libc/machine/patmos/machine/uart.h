@@ -23,6 +23,7 @@
 #define _MACHUART_H
 
 #include <unistd.h>
+#include <string.h>
 #include <stdlib.h>
 
 
