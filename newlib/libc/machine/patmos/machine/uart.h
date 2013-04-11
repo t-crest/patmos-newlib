@@ -26,11 +26,19 @@
 #include <string.h>
 #include <stdlib.h>
 
+/**
+ * Read up to len characters from UART into buf.
+ * Returns the number of characters read.
+ */
+static inline int uart_read(char *buf, int len)
+{
+    return _read(STDIN_FILENO, buf, len);
+}
 
 /**
  * Send some raw data of len bytes over UART.
  */
-static inline void uart_send(const void* data, size_t len)
+static inline void uart_write(const void* data, size_t len)
 {
     _write(STDOUT_FILENO, data, len);
 }
