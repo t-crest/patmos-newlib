@@ -25,11 +25,6 @@
 int setjmp(jmp_buf env) __attribute__((naked,noinline));
 int setjmp(jmp_buf env) 
 {
-    // TODO $s6 is currently defined to store the last spill address, not the TOS.
-    // To properly support setjmp or context-swich, we first need to spill the 
-    // whole stack cache to main memory and then empty the stack cache, whenever we 
-    // want to read or modify the TOS pointer.
-
     // set res to 0 in asm so that the compiler does not optimize it away
     int res;
     asm volatile (
@@ -45,22 +40,32 @@ int setjmp(jmp_buf env)
 	swc  [%1 + 9] = $r29	    \n\
 	swc  [%1 + 10] = $r30	    \n\
 	swc  [%1 + 11] = $r31	    \n\
-	sres 0x3FFFF		    \n\
-	sfree 0x3FFFF		    \n\
 	mfs  $r9  = $s0		    \n\
-	mfs  $r10 = $s6		    \n\
+	mfs  $r10 = $s2		    \n\
+	mfs  $r11 = $s3		    \n\
+	mfs  $r12 = $s5		    \n\
+	mfs  $r13 = $s6		    \n\
+	sub  $r12 = $r12, $r13      \n\
 	swc  [%1 + 12] = $r9	    \n\
 	swc  [%1 + 13] = $r10	    \n\
+	swc  [%1 + 14] = $r11	    \n\
+	swc  [%1 + 15] = $r12	    \n\
+	swc  [%1 + 16] = $r13	    \n\
 	clr  %0"
 	: "=r" (res) : "r" (env)
     );
     return res;
 }
 
-void longjmp(jmp_buf env, int value) __attribute__((naked,noinline));
+void longjmp(jmp_buf env, int value) __attribute__((naked));
 void longjmp(jmp_buf env, int value)
 {
     // Restore all callee-saved registers, predicates and TOS of stack cache
+    // The stack cache is restored by first spilling everything to main memory, 
+    // setting both the top an spill pointer to old stack top, and then ensuring the old 
+    // cache size.
+    // TODO setting both s5 and s6 and spilling first might not be necessary, depending 
+    //      on mts $s5 syntax.
     asm volatile (
        "lwc $r20 = [%0 + 0]  \n\
 	lwc $r21 = [%0 + 1]  \n\
@@ -74,14 +79,23 @@ void longjmp(jmp_buf env, int value)
 	lwc $r29 = [%0 + 9]  \n\
 	lwc $r30 = [%0 + 10] \n\
 	lwc $r31 = [%0 + 11] \n\
+	mfs  $r12 = $s5	     \n\
+	mfs  $r13 = $s6	     \n\
+	sub  $r12 = $r12, $r13  \n\
+	sspill $r12	     \n\
 	lwc $r9  = [%0 + 12] \n\
 	lwc $r10 = [%0 + 13] \n\
-	sres 0x3FFFF	     \n\
-	sfree 0x3FFFF	     \n\
-	mov $r1 = %1 	     \n\
+	lwc $r11 = [%0 + 14] \n\
+	lwc $r12 = [%0 + 15] \n\
+	lwc $r13 = [%0 + 16] \n\
+	mts $s2 = $r10       \n\
+	mts $s3 = $r11       \n\
+	mts $s5 = $r13       \n\
+	mts $s6 = $r13       \n\
+	sens $r12	     \n\
 	ret $r30, $r31	     \n\
-	mts $s6 = $r10       \n\
-	mts $s0 = $r9"
+	mts $s0 = $r9        \n\
+	mov $r1 = %1"
 	: : "r" (env), "r" (value)
     );
 
