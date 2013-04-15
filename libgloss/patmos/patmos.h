@@ -21,7 +21,7 @@
 #define __PATMOS__H
 
 /// linker symbol giving the base address of the IO map address range
-extern char _iomap_base;
+extern unsigned _iomap_base;
 
 /// linker symbol giving the address of the UART status register
 extern char _uart_status_base;

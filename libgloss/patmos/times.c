@@ -21,8 +21,8 @@
 #include <sys/times.h>
 #include <time.h>
 
+#include "patmos.h"
 
-#define CLOCKS_PER_USEC ((CLOCKS_PER_SEC) / 1000000)
 
 #undef errno
 extern int  errno;
@@ -31,10 +31,25 @@ extern int  errno;
 static inline unsigned long long _clock(void) {
     unsigned clo, chi;
 
-    asm volatile ( "mfs %0 = $s8 ; mfs %1 = $s7"
-	 : "=r" (chi), "=r" (clo) : );
+    unsigned address = &_iomap_base + 0x10;
+    asm volatile ( 
+	 "lwl %1 = [%2 + 1] \n\t"
+	 "lwl %0 = [%2 + 0] \n\t"
+	 : "=r" (chi), "=r" (clo) : "r" (address));
 
     return (((unsigned long long) chi) << 32) | clo;
+}
+
+static inline unsigned long long _usecs(void) {
+    unsigned ulo, uhi;
+
+    unsigned address = &_iomap_base + 0x18;
+    asm volatile ( 
+	 "lwl %1 = [%2 + 1] \n\t"
+	 "lwl %0 = [%2 + 0] \n\t"
+	 : "=r" (uhi), "=r" (ulo) : "r" (address));
+
+    return (((unsigned long long) uhi) << 32) | ulo;
 }
 
 
@@ -49,6 +64,7 @@ static inline unsigned long long _clock(void) {
 clock_t _times (struct tms* buf)
 {
     unsigned long long ticks;
+    // TODO we should make sure that this is in terms of CLOCKS_PER_SEC
     ticks = _clock();
     buf->tms_utime = ticks;	// user time
     buf->tms_stime = 0;		// system time
@@ -69,10 +85,10 @@ int _gettimeofday (struct timeval *tv, void *tzvp)
 	tz->tz_minuteswest = tz->tz_dsttime = 0;
     }
 
-    unsigned long long c = _clock();
+    unsigned long long us = _usecs();
 
-    tv->tv_usec = c / CLOCKS_PER_USEC;
-    tv->tv_sec = c / CLOCKS_PER_SEC;
+    tv->tv_usec = us;
+    tv->tv_sec = us / 1000000;
     return 0;
 }
 
