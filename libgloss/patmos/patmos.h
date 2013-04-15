@@ -20,6 +20,9 @@
 #ifndef __PATMOS__H
 #define __PATMOS__H
 
+/// linker symbol giving the base address of the IO map address range
+extern char _iomap_base;
+
 /// linker symbol giving the address of the UART status register
 extern char _uart_status_base;
 
@@ -42,6 +45,8 @@ extern char _uart_data_base;
 /// Bit mask for the parity-error bit (PAE)
 #define __PATMOS_UART_PAE 4
 
+/// Bit mask for the transmit-flush bit (TFL)
+#define __PATMOS_UART_TFL 8
 
 /// Macro to read the UART's status register
 #define __PATMOS_UART_STATUS(res) asm volatile ("lwl %0 = [%1];;" : "=r" (res) : "r" (__PATMOS_UART_STATUS_ADDR));

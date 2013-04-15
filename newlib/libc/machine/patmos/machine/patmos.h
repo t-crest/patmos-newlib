@@ -24,6 +24,22 @@
 #define _MACHPATMOS_H
 
 /**
+ * Base address of the IO address range.
+ * Defined by patmos-clang driver as a symbol at link-time
+ */
+extern unsigned int _iomap_base;
+
+/**
+ * Get the CPU ID.
+ */
+static inline unsigned int get_cpuid()
+{
+   unsigned int id;
+   asm ("lwl %0 = [%1]" : "=r" (id) : "r" (&_iomap_base));
+   return id;
+}
+
+/**
  * Invalidate the data cache state.
  */
 static inline void invalidate_data_cache()
