@@ -29,13 +29,6 @@ extern char _uart_status_base;
 /// linker symbol giving the address of the UART data register
 extern char _uart_data_base;
 
-/// Address to access the status register of the UART coming with Patmos
-#define __PATMOS_UART_STATUS_ADDR (&_uart_status_base)
-
-/// Address to access the data register of the UART coming with Patmos
-#define __PATMOS_UART_DATA_ADDR (&_uart_data_base)
-
-
 /// Bit mask for the transmit-ready bit (TRE)
 #define __PATMOS_UART_TRE 1
 
@@ -48,13 +41,22 @@ extern char _uart_data_base;
 /// Bit mask for the transmit-flush bit (TFL)
 #define __PATMOS_UART_TFL 8
 
+/// Address to access the status register of the UART coming with Patmos
+#define __PATMOS_UART_STATUS_ADDR (&_uart_status_base)
+
+/// Address to access the data register of the UART coming with Patmos
+#define __PATMOS_UART_DATA_ADDR (&_uart_data_base)
+
 /// Macro to read the UART's status register
-#define __PATMOS_UART_STATUS(res) asm volatile ("lwl %0 = [%1];;" : "=r" (res) : "r" (__PATMOS_UART_STATUS_ADDR));
+#define __PATMOS_UART_STATUS(res) asm volatile ("lwl %0 = [%1]" : "=r" (res) : "r" (__PATMOS_UART_STATUS_ADDR));
 
 /// Macro to read the UART's data register
-#define __PATMOS_UART_RD_DATA(res) asm volatile ("lwl %0 = [%1];;" : "=r" (res) : "r" (__PATMOS_UART_DATA_ADDR));
+#define __PATMOS_UART_RD_DATA(res) asm volatile ("lwl %0 = [%1]" : "=r" (res) : "r" (__PATMOS_UART_DATA_ADDR));
+
+/// Macro to write the UART's control register
+#define __PATMOS_UART_WR_CTRL(data) asm volatile ("swl [%0] = %1" : : "r" (__PATMOS_UART_STATUS_ADDR), "r" (data));
 
 /// Macro to write the UART's data register
-#define __PATMOS_UART_WR_DATA(data) asm volatile ("swl [%0] = %1;;" : : "r" (__PATMOS_UART_DATA_ADDR), "r" (data));
+#define __PATMOS_UART_WR_DATA(data) asm volatile ("swl [%0] = %1" : : "r" (__PATMOS_UART_DATA_ADDR), "r" (data));
 
 #endif // __PATMOS__H

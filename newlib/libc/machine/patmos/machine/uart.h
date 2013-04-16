@@ -25,6 +25,37 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+
+/**
+ * Declaration to get internal function from libgloss, should not be used outside this file.
+ */
+void _EXFUN(_uart_flush, (void ));
+
+/**
+ * Send a flush command to the UART.
+ */
+static inline void uart_flush(void) 
+{
+    _uart_flush();
+}
+
+/** 
+ * Flush a file pointer and flush the UART.
+ *
+ * TODO it would be nicer to have fflush call _uart_flush, but there seems to be no
+ *      good way of doing this in newlib (copying fflush is not nice and llvm-link does
+ *      not link the new fflush.o in for some mysterious reason if I do copy it).
+ */
+static inline int uart_fflush(FILE *fp)
+{
+    int result = fflush(fp);
+    if (fp == NULL || fp->_file == STDOUT_FILENO || fp->_file == STDERR_FILENO)
+    {
+	_uart_flush();
+    }
+    return result;
+}
 
 /**
  * Read up to len characters from UART into buf.

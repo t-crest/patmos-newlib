@@ -466,6 +466,9 @@ case "${host}" in
   moxie*)
         sys_dir=
         ;;
+  patmos-*-elf|patmos-*-*-elf)
+	posix_dir=posix
+	;;
   powerpcle-*-pe)
 	posix_dir=posix
 	;;
@@ -550,11 +553,6 @@ case "${host}" in
 # UDI doesn't have exec, so system() should fail the right way
   a29k-amd-udi)
 	newlib_cflags="${newlib_cflags} -DNO_EXEC"
-	syscall_dir=syscalls
-	;;
-  patmos-*-elf|patmos-*-*-elf|patmos-*-rtems*)
-	default_newlib_io_c99_formats="yes"
-	default_newlib_io_long_long="yes"
 	syscall_dir=syscalls
 	;;
   arc-*-*)
@@ -690,6 +688,18 @@ case "${host}" in
         syscall_dir=syscalls
 	default_newlib_io_long_long="yes"
         ;;
+  patmos-*-elf|patmos-*-*-elf)
+	# Note: patmos-*-rtems is matched by generic *-*-rtems target above.
+	default_newlib_io_c99_formats="yes"
+	default_newlib_io_long_long="yes"
+	syscall_dir=syscalls
+	newlib_cflags="${newlib_cflags} -D_COMPILING_NEWLIB"
+	newlib_cflags="${newlib_cflags} -DHAVE_NANOSLEEP"
+        # turn off unsupported items in posix directory 
+	newlib_cflags="${newlib_cflags} -D_NO_GETLOGIN -D_NO_GETPWENT -D_NO_GETUT -D_NO_GETPASS -D_NO_SIGSET -D_NO_WORDEXP -D_NO_POPEN -D_NO_GLOB -D_NO_EXECVE"
+	# We do not support directories, disable compiling stand-in functions
+	newlib_cflags="${newlib_cflags} -DHAVE_OPENDIR"
+	;;
   powerpc*-*-eabialtivec*)
 	default_newlib_io_long_long="yes"
 	newlib_cflags="${newlib_cflags} -DMISSING_SYSCALL_NAMES"

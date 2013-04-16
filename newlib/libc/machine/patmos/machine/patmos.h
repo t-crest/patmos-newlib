@@ -27,7 +27,8 @@
  * Base address of the IO address range.
  * Defined by patmos-clang driver as a symbol at link-time
  */
-extern unsigned int _iomap_base;
+extern char _iomap_base;
+
 
 /**
  * Get the CPU ID.
@@ -39,10 +40,11 @@ static inline unsigned int get_cpuid()
    return id;
 }
 
+
 /**
- * Invalidate the data cache state.
+ * Flush the data cache state.
  */
-static inline void invalidate_data_cache()
+static inline void flush_data_cache()
 {
     // TODO implement
 }

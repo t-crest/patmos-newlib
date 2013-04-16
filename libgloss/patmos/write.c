@@ -22,6 +22,14 @@
 #undef errno
 extern int  errno;
 
+
+//******************************************************************************
+/// _uart_flush - send a flush command over the uart
+void _uart_flush(void) 
+{
+  __PATMOS_UART_WR_CTRL(__PATMOS_UART_TFL);
+}
+
 //******************************************************************************
 /// _write - write to a file descriptor.
 int _write(int file, char *buf, int nbytes)

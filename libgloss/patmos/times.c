@@ -54,6 +54,27 @@ static inline unsigned long long _usecs(void) {
 
 
 //******************************************************************************
+/// nanosleep - sleep for a given number of nanoseconds.
+///
+/// This implementation uses the µs clock source, so the minimal resolution is µs.
+///
+int nanosleep(const struct timespec *req, struct timespec *rem)
+{
+    unsigned long long wait_usec = req->tv_sec * 1000000 + (req->tv_nsec + 999) / 1000;
+
+    unsigned long long end_ts = _usecs() + wait_usec;
+
+    while (_usecs() < end_ts) { 
+	// busy-wait.
+    }
+
+    // we do not support interrupts, so no need to update *rem.
+    
+    return 0;
+}
+
+
+//******************************************************************************
 /// _times - get timing information.
 ///
 /// Used by _times_r(), times() and clock().
