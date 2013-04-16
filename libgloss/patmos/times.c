@@ -31,7 +31,7 @@ extern int  errno;
 static inline unsigned long long _clock(void) {
     unsigned clo, chi;
 
-    unsigned address = &_iomap_base + 0x10;
+    char *address = &_iomap_base + 0x10;
     asm volatile ( 
 	 "lwl %1 = [%2 + 1] \n\t"
 	 "lwl %0 = [%2 + 0] \n\t"
@@ -43,7 +43,7 @@ static inline unsigned long long _clock(void) {
 static inline unsigned long long _usecs(void) {
     unsigned ulo, uhi;
 
-    unsigned address = &_iomap_base + 0x18;
+    char *address = &_iomap_base + 0x18;
     asm volatile ( 
 	 "lwl %1 = [%2 + 1] \n\t"
 	 "lwl %0 = [%2 + 0] \n\t"
