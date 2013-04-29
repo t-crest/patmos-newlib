@@ -47,7 +47,7 @@ static inline unsigned long long _usecs(void) {
     asm volatile ( 
 	 "lwl %1 = [%2 + 1] \n\t"
 	 "lwl %0 = [%2 + 0] \n\t"
-	 : "=r" (uhi), "=r" (ulo) : "r" (address));
+	 : "=r" (uhi), "=&r" (ulo) : "r" (address));
 
     return (((unsigned long long) uhi) << 32) | ulo;
 }
