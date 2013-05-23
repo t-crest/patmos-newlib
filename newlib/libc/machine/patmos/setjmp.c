@@ -89,11 +89,11 @@ void longjmp(jmp_buf env, int value)
 	lwc $r12 = [%0 + 15] \n\
 	lwc $r13 = [%0 + 16] \n\
 	mts $s2 = $r10       \n\
-	mts $s3 = $r11       \n\
 	mts $s5 = $r13       \n\
 	mts $s6 = $r13       \n\
 	sens $r12	     \n\
 	ret $r30, $r31	     \n\
+	mts $s3 = $r11       \n\
 	mts $s0 = $r9        \n\
 	mov $r1 = %1"
 	: : "r" (env), "r" (value)
