@@ -83,11 +83,12 @@ void _start()
   // ---------------------------------------------------------------------------  
   // invoke main -- without command line options
   // we use asm to prevent LLVM from inlining into a naked function here
-  
-  asm volatile ("call %1;"        // invoke main function
-		"li   $r30 = %0;" // set function base (in delay slot)
+
+  asm volatile ("li   $r30 = %0;" // set function base
+	        "call %1;"        // invoke main function
 		"li   $r3 = 0;"   // argc
                 "li   $r4 = 0;"   // argv
+		"nop  ;"
                 "call %2;"        // terminate program and invoke exit
                 "mov  $r3 = $r1;" // get exit code (in delay slot)
                 "nop  ;"
