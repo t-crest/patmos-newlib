@@ -31,11 +31,12 @@ extern int  errno;
 static inline unsigned long long _clock(void) {
     unsigned clo, chi;
 
-    char *address = &_iomap_base + 0x10;
-    asm volatile ( 
-	 "lwl %1 = [%2 + 1] \n\t"
-	 "lwl %0 = [%2 + 0] \n\t"
-	 : "=r" (chi), "=r" (clo) : "r" (address));
+    _IODEV unsigned const volatile * const hi_clock = (_IODEV unsigned const volatile * const)(&_iomap_base + 0x10);
+    _IODEV unsigned const volatile * const lo_clock = (_IODEV unsigned const volatile * const)(&_iomap_base + 0x14);
+
+    // Order is important here
+    clo = *lo_clock;
+    chi = *hi_clock;
 
     return (((unsigned long long) chi) << 32) | clo;
 }
@@ -43,11 +44,12 @@ static inline unsigned long long _clock(void) {
 static inline unsigned long long _usecs(void) {
     unsigned ulo, uhi;
 
-    char *address = &_iomap_base + 0x18;
-    asm volatile ( 
-	 "lwl %1 = [%2 + 1] \n\t"
-	 "lwl %0 = [%2 + 0] \n\t"
-	 : "=r" (uhi), "=&r" (ulo) : "r" (address));
+    _IODEV unsigned const volatile * const hi_usec = (_IODEV unsigned const volatile * const)(&_iomap_base + 0x18);
+    _IODEV unsigned const volatile * const lo_usec = (_IODEV unsigned const volatile * const)(&_iomap_base + 0x1c);
+
+    // Order is important here
+    ulo = *lo_usec;
+    uhi = *hi_usec;
 
     return (((unsigned long long) uhi) << 32) | ulo;
 }

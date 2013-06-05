@@ -28,6 +28,7 @@
  *
  * _SPM int *p = (_SPM int *) 0x1234;
  *
+ * @see _IODEV in machine/patmos.h
  */
 #define _SPM __attribute__((address_space(1)))
 

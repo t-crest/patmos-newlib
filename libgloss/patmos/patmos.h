@@ -23,6 +23,11 @@
 /// linker symbol giving the base address of the IO map address range
 extern char _iomap_base;
 
+#define _IODEV __attribute__((address_space(1)))
+
+typedef _IODEV unsigned int volatile * const _iodev_ptr_t;
+
+
 /// linker symbol giving the address of the UART status register
 extern char _uart_status_base;
 
@@ -48,15 +53,16 @@ extern char _uart_data_base;
 #define __PATMOS_UART_DATA_ADDR (&_uart_data_base)
 
 /// Macro to read the UART's status register
-#define __PATMOS_UART_STATUS(res) asm volatile ("lwl %0 = [%1]" : "=r" (res) : "r" (__PATMOS_UART_STATUS_ADDR));
+#define __PATMOS_UART_STATUS(res) res = *((_iodev_ptr_t)__PATMOS_UART_STATUS_ADDR);
 
 /// Macro to read the UART's data register
-#define __PATMOS_UART_RD_DATA(res) asm volatile ("lwl %0 = [%1]" : "=r" (res) : "r" (__PATMOS_UART_DATA_ADDR));
+#define __PATMOS_UART_RD_DATA(res) res = *((_iodev_ptr_t)__PATMOS_UART_DATA_ADDR);
 
 /// Macro to write the UART's control register
-#define __PATMOS_UART_WR_CTRL(data) asm volatile ("swl [%0] = %1" : : "r" (__PATMOS_UART_STATUS_ADDR), "r" (data));
-
+#define __PATMOS_UART_WR_CTRL(data) *((_iodev_ptr_t)__PATMOS_UART_STATUS_ADDR) = data;
+ 
 /// Macro to write the UART's data register
-#define __PATMOS_UART_WR_DATA(data) asm volatile ("swl [%0] = %1" : : "r" (__PATMOS_UART_DATA_ADDR), "r" (data));
+#define __PATMOS_UART_WR_DATA(data) *((_iodev_ptr_t)__PATMOS_UART_DATA_ADDR) = data;
+
 
 #endif // __PATMOS__H

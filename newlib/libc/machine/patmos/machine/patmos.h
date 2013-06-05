@@ -29,15 +29,32 @@
  */
 extern char _iomap_base;
 
+/**
+ * Attribute for pointers into the IO-mapped memory. Use as
+ *
+ * _IODEV int *p = (_IODEV int *) 0x1234;
+ *
+ * @see _SPM in machine/spm.h
+ */
+#define _IODEV __attribute__((address_space(1)))
+
+typedef _IODEV unsigned int volatile * const _iodev_ptr_t;
+
+/**
+ * Attribute for pointers into main memory using cache bypass. Use as
+ *
+ * _UNCACHED int *p = (_UNCACHED int *) &mydata;
+ */
+#define _UNCACHED __attribute__((address_space(3)))
+
 
 /**
  * Get the CPU ID.
  */
 static inline unsigned int get_cpuid()
 {
-   unsigned int id;
-   asm ("lwl %0 = [%1]" : "=r" (id) : "r" (&_iomap_base));
-   return id;
+  unsigned int id = *((_iodev_ptr_t)(&_iomap_base));
+  return id;
 }
 
 
