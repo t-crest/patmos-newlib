@@ -52,6 +52,8 @@ char *__env[1] = {0};
 /// environ - values of environment vairables.
 char **environ = __env;
 
+unsigned _loader_baseaddr;
+unsigned _loader_off;
 
 //******************************************************************************
 /// _start - main entry function to all patmos executables.
@@ -60,6 +62,12 @@ void _start() __attribute__((naked,used));
 
 void _start()
 {
+  // ---------------------------------------------------------------------------
+  // store return information of caller
+  asm volatile ("swm [%0] = $r30;"
+                "swm [%1] = $r31;"
+                : : "r" (&_loader_baseaddr), "r" (&_loader_off));
+
   // ---------------------------------------------------------------------------  
   // setup stack frame and stack cache.
   asm volatile ("mov $r29 = %0;" // initialize shadow stack pointer"
@@ -85,10 +93,10 @@ void _start()
   // we use asm to prevent LLVM from inlining into a naked function here
 
   asm volatile ("li   $r30 = %0;" // set function base
-	        "call %1;"        // invoke main function
-		"li   $r3 = 0;"   // argc
+                "call %1;"        // invoke main function
+                "li   $r3 = 0;"   // argc
                 "li   $r4 = 0;"   // argv
-		"nop  ;"
+                "nop  ;"
                 "call %2;"        // terminate program and invoke exit
                 "mov  $r3 = $r1;" // get exit code (in delay slot)
                 "nop  ;"

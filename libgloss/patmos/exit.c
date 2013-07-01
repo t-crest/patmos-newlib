@@ -17,13 +17,19 @@
     
 //******************************************************************************
 /// _exit - halt the processor.
+
+extern unsigned _loader_baseaddr;
+extern unsigned _loader_off;
+
 void _exit(int status)
 {
-  asm volatile ("mov $r1 = %0;;"  // store exit code
-                "mov $r30 = $r0;;" // clear sb and return == halt
-                "ret $r0, $r0;;"
-		"nop;;"
-		"nop;;"
-                 : : "r" (status));
-  while (1) /* do nothing */;
+  // return to loader; halts if baseaddr and off are 0
+  asm volatile ("mov $r30 = %0;"
+                "mov $r31 = %1;"
+                "mov $r1 = %2;"  // store exit code
+                "ret $r30, $r31;"
+                "nop;"
+                "nop;"
+                "nop;"
+                : : "r" (_loader_baseaddr), "r" (_loader_off), "r" (status));
 }
