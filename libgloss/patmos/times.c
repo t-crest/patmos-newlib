@@ -31,8 +31,8 @@ extern int  errno;
 static inline unsigned long long _clock(void) {
     unsigned clo, chi;
 
-    _IODEV unsigned const volatile * const hi_clock = (_IODEV unsigned const volatile * const)(&_iomap_base + 0x10);
-    _IODEV unsigned const volatile * const lo_clock = (_IODEV unsigned const volatile * const)(&_iomap_base + 0x14);
+    _iodev_ptr_t hi_clock = (_iodev_ptr_t)(&_timer_base + 0x0);
+    _iodev_ptr_t lo_clock = (_iodev_ptr_t)(&_timer_base + 0x4);
 
     // Order is important here
     clo = *lo_clock;
@@ -44,8 +44,8 @@ static inline unsigned long long _clock(void) {
 static inline unsigned long long _usecs(void) {
     unsigned ulo, uhi;
 
-    _IODEV unsigned const volatile * const hi_usec = (_IODEV unsigned const volatile * const)(&_iomap_base + 0x18);
-    _IODEV unsigned const volatile * const lo_usec = (_IODEV unsigned const volatile * const)(&_iomap_base + 0x1c);
+    _iodev_ptr_t hi_usec = (_iodev_ptr_t)(&_timer_base + 0x8);
+    _iodev_ptr_t lo_usec = (_iodev_ptr_t)(&_timer_base + 0xc);
 
     // Order is important here
     ulo = *lo_usec;

@@ -27,7 +27,7 @@
  * Base address of the IO address range.
  * Defined by patmos-clang driver as a symbol at link-time
  */
-extern char _iomap_base;
+extern char _cpuinfo_base;
 
 /**
  * Attribute for pointers into the IO-mapped memory. Use as
@@ -53,7 +53,7 @@ typedef _IODEV unsigned int volatile * const _iodev_ptr_t;
  */
 static inline unsigned int get_cpuid()
 {
-  unsigned int id = *((_iodev_ptr_t)(&_iomap_base));
+  unsigned int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
   return id;
 }
 
