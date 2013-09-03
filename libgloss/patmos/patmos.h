@@ -42,9 +42,6 @@ extern char _uart_base;
 /// Bit mask for the parity-error bit (PAE)
 #define __PATMOS_UART_PAE 4
 
-/// Bit mask for the transmit-flush bit (TFL)
-#define __PATMOS_UART_TFL 8
-
 /// Address to access the status register of the UART coming with Patmos
 #define __PATMOS_UART_STATUS_ADDR (&_uart_base+0x0)
 
