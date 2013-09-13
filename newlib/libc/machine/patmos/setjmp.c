@@ -45,12 +45,16 @@ int setjmp(jmp_buf env)
 	mfs  $r11 = $s3		    \n\
 	mfs  $r12 = $s5		    \n\
 	mfs  $r13 = $s6		    \n\
+	mfs  $r14 = $s7		    \n\
+	mfs  $r15 = $s8		    \n\
 	sub  $r12 = $r12, $r13      \n\
 	swc  [%1 + 12] = $r9	    \n\
 	swc  [%1 + 13] = $r10	    \n\
 	swc  [%1 + 14] = $r11	    \n\
 	swc  [%1 + 15] = $r12	    \n\
 	swc  [%1 + 16] = $r13	    \n\
+	swc  [%1 + 17] = $r14	    \n\
+	swc  [%1 + 18] = $r15	    \n\
 	clr  %0"
 	: "=r" (res) : "r" (env)
     );
@@ -88,11 +92,15 @@ void longjmp(jmp_buf env, int value)
 	lwc $r11 = [%0 + 14] \n\
 	lwc $r12 = [%0 + 15] \n\
 	lwc $r13 = [%0 + 16] \n\
+	lwc $r14 = [%0 + 17] \n\
+	lwc $r15 = [%0 + 18] \n\
 	mts $s2 = $r10       \n\
 	mts $s5 = $r13       \n\
 	mts $s6 = $r13       \n\
+	mts $s7 = $r14       \n\
+	mts $s8 = $r15       \n\
 	sens $r12	     \n\
-	ret $r30, $r31	     \n\
+	ret                  \n\
 	mts $s3 = $r11       \n\
 	mts $s0 = $r9        \n\
 	mov $r1 = %1"

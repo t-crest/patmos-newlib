@@ -64,13 +64,15 @@ void _start()
 {
   // ---------------------------------------------------------------------------
   // store return information of caller
-  asm volatile ("swm [%0] = $r30;"
-                "swm [%1] = $r31;"
+  asm volatile ("mfs $r1 = $srb;"
+                "swm [%0] = $r1;"
+                "mfs $r1 = $sro;"
+                "swm [%1] = $r1;"
                 : : "r" (&_loader_baseaddr), "r" (&_loader_off));
 
   // ---------------------------------------------------------------------------  
   // setup stack frame and stack cache.
-  asm volatile ("mov $r29 = %0;" // initialize shadow stack pointer"
+  asm volatile ("mov $r31 = %0;" // initialize shadow stack pointer"
                 "mts $ss  = %1;" // initialize the stack cache's spill pointer"
                 "mts $st  = %1;" // initialize the stack cache's top pointer"
                  : : "r" (&_shadow_stack_base), "r" (&_stack_cache_base));
@@ -92,8 +94,7 @@ void _start()
   // invoke main -- without command line options
   // we use asm to prevent LLVM from inlining into a naked function here
 
-  asm volatile ("li   $r30 = %0;" // set function base
-                "call %1;"        // invoke main function
+  asm volatile ("call %1;"        // invoke main function
                 "li   $r3 = 0;"   // argc
                 "li   $r4 = 0;"   // argv
                 "nop  ;"

@@ -24,10 +24,10 @@ extern unsigned _loader_off;
 void _exit(int status)
 {
   // return to loader; halts if baseaddr and off are 0
-  asm volatile ("mov $r30 = %0;"
-                "mov $r31 = %1;"
+  asm volatile ("mts $srb = %0;"
+                "mts $sro = %1;"
                 "mov $r1 = %2;"  // store exit code
-                "ret $r30, $r31;"
+                "ret;"
                 "nop;"
                 "nop;"
                 "nop;"
