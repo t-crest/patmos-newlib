@@ -57,6 +57,15 @@ static inline unsigned int get_cpuid()
   return id;
 }
 
+/**
+ * Get the CPU frequency.
+ */
+static inline unsigned int get_cpu_freq()
+{
+  unsigned int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x4));
+  return id;
+}
+
 
 /**
  * Flush the data cache state.

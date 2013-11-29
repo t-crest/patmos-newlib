@@ -321,7 +321,8 @@ typedef struct {
   int inheritsched;
   int schedpolicy;
   struct sched_param schedparam;
-#if defined(__rtems__)
+/*  TODO This needs to be reenabled when Patmos RTEMS is updated to a newer verion. */
+#if defined(__rtems__) && !defined(__patmos__)
   size_t guardsize;
 #endif
 
