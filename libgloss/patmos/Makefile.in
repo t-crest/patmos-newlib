@@ -14,7 +14,7 @@
 # 
 # You should have received a copy of the GNU Lesser General Public License
 # (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
-    
+
 DESTDIR =
 VPATH = @srcdir@ @srcdir@/..
 srcdir = @srcdir@
@@ -66,7 +66,7 @@ ARFLAGS = cru
 SIM_SCRIPTS	=
 SIM_LDFLAGS	=
 SIM_BSP		= libpatmos.a
-SIM_CRT0	= crt0.o
+SIM_CRTS	= crt0.o crtbegin.o crtend.o
 SIM_OBJS	= open.o close.o read.o write.o lseek.o link.o unlink.o fstat.o\
 		  isatty.o getpid.o exec.o fork.o wait.o kill.o exit.o sbrk.o\
 		  times.o ftruncate.o stat.o chown.o chmod.o
@@ -79,7 +79,7 @@ SIM_INSTALL	= install-sim
 # build a test program for each target board. Just trying to get
 # it to link is a good test, so we ignore all the errors for now.
 #
-all: ${SIM_CRT0} ${OBJS} ${SIM_BSP}
+all: ${SIM_CRTS} ${OBJS} ${SIM_BSP}
 
 #
 # here's where we build the board support packages for each target
@@ -106,7 +106,7 @@ distclean maintainer-clean realclean: clean
 install: ${SIM_INSTALL}
 
 install-sim:
-	set -e; for x in ${SIM_CRT0} ${SIM_BSP} ${SIM_SCRIPTS}; do ${INSTALL_DATA} $$x $(DESTDIR)${tooldir}/lib/$$x; done
+	set -e; for x in ${SIM_CRTS} ${SIM_BSP} ${SIM_SCRIPTS}; do ${INSTALL_DATA} $$x $(DESTDIR)${tooldir}/lib/$$x; done
 
 doc:
 info:
