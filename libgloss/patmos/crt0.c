@@ -17,6 +17,8 @@
 
 #include <stddef.h>
 
+#include "patmos.h"
+
 //******************************************************************************
 /// start and end of BSS section
 extern int __bss_start, _end;
@@ -76,10 +78,17 @@ void _start()
 
   // ---------------------------------------------------------------------------  
   // setup stack frame and stack cache.
+
+  // compute effective stack addresses (needed for CMPs)
+  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  const int stack_size = (&_shadow_stack_base - &_stack_cache_base) * sizeof(char *);
+  const unsigned shadow_stack_base = (unsigned)&_shadow_stack_base - 2*stack_size*id;
+  const unsigned stack_cache_base = (unsigned)&_stack_cache_base - 2*stack_size*id;
+
   asm volatile ("mov $r29 = %0;" // initialize shadow stack pointer"
                 "mts $ss  = %1;" // initialize the stack cache's spill pointer"
                 "mts $st  = %1;" // initialize the stack cache's top pointer"
-                 : : "r" (&_shadow_stack_base), "r" (&_stack_cache_base));
+                 : : "r" (shadow_stack_base), "r" (stack_cache_base));
 
   // ---------------------------------------------------------------------------  
   // set function base
