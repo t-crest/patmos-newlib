@@ -60,8 +60,12 @@ char *__env[1] = {0};
 /// environ - values of environment vairables.
 char **environ = __env;
 
-unsigned _loader_baseaddr;
-unsigned _loader_off;
+/// MAX_CORES - the maximum number of cores
+#define MAX_CORES 64
+/// _loader_baseaddr - the base address of the loading function (one per core)
+unsigned _loader_baseaddr[MAX_CORES];
+/// _loader_off - the offset of the loading function (one per core)
+unsigned _loader_off[MAX_CORES];
 
 //******************************************************************************
 /// _start - main entry function to all patmos executables.
@@ -70,20 +74,25 @@ void _start() __attribute__((naked,used));
 
 void _start()
 {
+  // retrieve the id of the current core
+  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+
   // ---------------------------------------------------------------------------
   // store return information of caller
   asm volatile ("swm [%0] = $r30;"
                 "swm [%1] = $r31;"
-                : : "r" (&_loader_baseaddr), "r" (&_loader_off));
+                : : "r" (&_loader_baseaddr[id]), "r" (&_loader_off[id]));
 
   // ---------------------------------------------------------------------------  
   // setup stack frame and stack cache.
 
   // compute effective stack addresses (needed for CMPs)
-  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
-  const int stack_size = (&_shadow_stack_base - &_stack_cache_base) * sizeof(char *);
-  const unsigned shadow_stack_base = (unsigned)&_shadow_stack_base - 2*stack_size*id;
-  const unsigned stack_cache_base = (unsigned)&_stack_cache_base - 2*stack_size*id;
+  const int stack_size =
+    (unsigned)&_shadow_stack_base - (unsigned)&_stack_cache_base;
+  const unsigned shadow_stack_base =
+    (unsigned)&_shadow_stack_base - 2*stack_size*id;
+  const unsigned stack_cache_base =
+    (unsigned)&_stack_cache_base - 2*stack_size*id;
 
   asm volatile ("mov $r29 = %0;" // initialize shadow stack pointer"
                 "mts $ss  = %1;" // initialize the stack cache's spill pointer"
