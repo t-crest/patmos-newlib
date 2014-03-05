@@ -17,6 +17,8 @@
 
 #include <stddef.h>
 
+#include "patmos.h"
+
 //******************************************************************************
 /// start and end of BSS section
 extern int __bss_start, _end;
@@ -25,11 +27,17 @@ extern int __bss_start, _end;
 extern int _shadow_stack_base, _stack_cache_base;
 
 //******************************************************************************
-/// init - initializer, usually used to call C++ constructors.
-extern void __init();
+typedef void (*funptr_t)(void);
 
-/// fini - finalizer, usually used to call C++ destructors.
-extern void __fini();
+/// init - initializer, used to call static constructors.
+extern funptr_t __init_array_begin[0];
+extern funptr_t __init_array_end[0];
+void __init(void) __attribute__((noinline));
+
+/// fini - finalizer, used to call static destructors.
+extern funptr_t __fini_array_begin[0];
+extern funptr_t __fini_array_end[0];
+void __fini(void) __attribute__((noinline));
 
 //******************************************************************************
 
@@ -52,8 +60,12 @@ char *__env[1] = {0};
 /// environ - values of environment vairables.
 char **environ = __env;
 
-unsigned _loader_baseaddr;
-unsigned _loader_off;
+/// MAX_CORES - the maximum number of cores
+#define MAX_CORES 64
+/// _loader_baseaddr - the base address of the loading function (one per core)
+unsigned _loader_baseaddr[MAX_CORES];
+/// _loader_off - the offset of the loading function (one per core)
+unsigned _loader_off[MAX_CORES];
 
 //******************************************************************************
 /// _start - main entry function to all patmos executables.
@@ -62,49 +74,75 @@ void _start() __attribute__((naked,used));
 
 void _start()
 {
+  // retrieve the id of the current core
+  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+
   // ---------------------------------------------------------------------------
   // store return information of caller
-  asm volatile ("mfs $r1 = $srb;"
-                "swm [%0] = $r1;"
-                "mfs $r1 = $sro;"
-                "swm [%1] = $r1;"
-                : : "r" (&_loader_baseaddr), "r" (&_loader_off));
+  asm volatile ("mfs $r29 = $srb;"
+                "swm [%0] = $r29;"
+                "mfs $r29 = $sro;"
+                "swm [%1] = $r29;"
+                : : "r" (&_loader_baseaddr[id]), "r" (&_loader_off[id]));
+
+  // ---------------------------------------------------------------------------  
+  // setup stack frame and stack cache.
+
+  // compute effective stack addresses (needed for CMPs)
+  const int stack_size =
+    (unsigned)&_shadow_stack_base - (unsigned)&_stack_cache_base;
+  const unsigned shadow_stack_base =
+    (unsigned)&_shadow_stack_base - 2*stack_size*id;
+  const unsigned stack_cache_base =
+    (unsigned)&_stack_cache_base - 2*stack_size*id;
 
   // ---------------------------------------------------------------------------  
   // setup stack frame and stack cache.
   asm volatile ("mov $r31 = %0;" // initialize shadow stack pointer"
                 "mts $ss  = %1;" // initialize the stack cache's spill pointer"
                 "mts $st  = %1;" // initialize the stack cache's top pointer"
-                 : : "r" (&_shadow_stack_base), "r" (&_stack_cache_base));
-
+                 : : "r" (shadow_stack_base), "r" (stack_cache_base));
+                
   // ---------------------------------------------------------------------------  
   // clear the BSS section
   // memset(&__bss_start, 0, &_end - &__bss_start);
 
   // ---------------------------------------------------------------------------  
-  // call C++ initializer
-  // TODO: enable
-  // __init();
+  // call initializers
+  __init();
  
   // register callback to fini
-  // TODO: enable
-  // atexit(&__fini);
+  atexit(&__fini);
   
   // ---------------------------------------------------------------------------  
   // invoke main -- without command line options
   // we use asm to prevent LLVM from inlining into a naked function here
 
-  asm volatile ("call %1;"        // invoke main function
+  asm volatile ("call %0;"        // invoke main function
                 "li   $r3 = 0;"   // argc
                 "li   $r4 = 0;"   // argv
                 "nop  ;"
-                "call %2;"        // terminate program and invoke exit
+                "call %1;"        // terminate program and invoke exit
                 "mov  $r3 = $r1;" // get exit code (in delay slot)
                 "nop  ;"
                 "nop  ;"
-                 : : "i" (&_start), "i" (&main), "i" (&exit));
+                 : : "i" (&main), "i" (&exit));
 
   // ---------------------------------------------------------------------------
   // in case this returns
   while(1) /* do nothing */;
+}
+
+/// init - initializer, used to call static constructors.
+void __init(void) {
+  for (funptr_t *i = __init_array_begin; i < __init_array_end; i++) {
+    (*i)();
+  }
+}
+
+/// fini - finalizer, used to call static destructors.
+void __fini(void) {
+  for (funptr_t *i = __fini_array_end-1; i >= __fini_array_begin; --i) {
+    (*i)();
+  }
 }
