@@ -44,6 +44,13 @@ typedef void (*exc_handler_t)(void);
 /// The exception vector array.
 #define EXC_VEC(I) (((_IODEV exc_handler_t volatile * const)(&_excunit_base+0x80))[I])
 
+/// Various named exception vector entry numbers
+#define EXC_ILLEGAL_OP       0
+#define EXC_ILLEGAL_ADDRESS  1
+#define EXC_INTR_CLOCK       16
+#define EXC_INTR_USEC        17
+
+
 /// \brief Get source of exception.
 /// \return The exception source
 static inline unsigned exc_get_source() {
@@ -115,6 +122,7 @@ static inline void exc_register(unsigned n, exc_handler_t fun) {
 
 /// Alias for intr_enable.
 #define SEI() intr_enable()
+
 /// \brief Enable interrupts.
 static inline void intr_enable(void) {
   EXC_STATUS |= 1;
@@ -122,6 +130,7 @@ static inline void intr_enable(void) {
 
 /// Alias for intr_disable.
 #define CLI() intr_disable()
+
 /// \brief Disable interrupts.
 static inline void intr_disable(void) {
   EXC_STATUS &= ~1;
@@ -137,10 +146,16 @@ static inline void trap(unsigned n) {
 
 /// Generic prologue for exception handler.
 #define exc_prologue()                                   \
-  asm volatile("sres 48;"                                \
+  asm volatile("sub  $r31 = $r31, 12;"                   \
+               /* Save the stack cache state */          \
+               "swc  [$r31 + 0] = $r1;"                  \
+               "swc  [$r31 + 1] = $r2;"                  \
+               "mfs  $r1 = $ss;"                         \
+               "mfs  $r2 = $st;"                         \
+               "sub  $r1 = $r1, $r2;"                    \
+               "swc  [$r31 + 2] = $r1;"                  \
                /* Save general-purpose registers */      \
-               "sws  [1] = $r1;"                         \
-               "sws  [2] = $r2;"                         \
+               "sres 48;"                                \
                "sws  [3] = $r3;"                         \
                "sws  [4] = $r4;"                         \
                "sws  [5] = $r5;"                         \
@@ -169,15 +184,12 @@ static inline void trap(unsigned n) {
                "sws  [28] = $r28;"                       \
                "sws  [29] = $r29;"                       \
                "sws  [30] = $r30;"                       \
-               "sws  [31] = $r31;"                       \
                /* Save special registers */              \
                "mfs  $r1 = $s0;"                         \
                "mfs  $r2 = $s1;"                         \
                "mfs  $r3 = $s2;"                         \
                "mfs  $r4 = $s3;"                         \
                "mfs  $r5 = $s4;"                         \
-               "mfs  $r6 = $s5;"                         \
-               "mfs  $r7 = $s6;"                         \
                "mfs  $r8 = $s7;"                         \
                "mfs  $r9 = $s8;"                         \
                "mfs  $r10 = $s9;"                        \
@@ -192,8 +204,6 @@ static inline void trap(unsigned n) {
                "sws  [34] = $r3;"                        \
                "sws  [35] = $r4;"                        \
                "sws  [36] = $r5;"                        \
-               "sws  [37] = $r6;"                        \
-               "sws  [38] = $r7;"                        \
                "sws  [39] = $r8;"                        \
                "sws  [40] = $r9;"                        \
                "sws  [41] = $r10;"                       \
@@ -225,8 +235,6 @@ static inline void trap(unsigned n) {
                "lws  $r3 = [34];"                        \
                "lws  $r4 = [35];"                        \
                "lws  $r5 = [36];"                        \
-               "lws  $r6 = [37];"                        \
-               "lws  $r7 = [38];"                        \
                "lws  $r8 = [39];"                        \
                "lws  $r9 = [40];"                        \
                "lws  $r10 = [41];"                       \
@@ -241,8 +249,6 @@ static inline void trap(unsigned n) {
                "mts  $s2 = $r3;"                         \
                "mts  $s3 = $r4;"                         \
                "mts  $s4 = $r5;"                         \
-               "mts  $s5 = $r6;"                         \
-               "mts  $s6 = $r7;"                         \
                "mts  $s7 = $r8;"                         \
                "mts  $s8 = $r9;"                         \
                "mts  $s9 = $r10;"                        \
@@ -253,8 +259,6 @@ static inline void trap(unsigned n) {
                "mts  $s14 = $r15;"                       \
                "mts  $s15 = $r16;"                       \
                /* Restore general-purpose registers */   \
-               "lws  $r1 = [1];"                         \
-               "lws  $r2 = [2];"                         \
                "lws  $r3 = [3];"                         \
                "lws  $r4 = [4];"                         \
                "lws  $r5 = [5];"                         \
@@ -283,12 +287,16 @@ static inline void trap(unsigned n) {
                "lws  $r28 = [28];"                       \
                "lws  $r29 = [29];"                       \
                "lws  $r30 = [30];"                       \
-               "lws  $r31 = [31];"                       \
+               /* Restore the stack cache state */       \
+               "lwc  $r1 = [$r31 + 2];"                  \
+               "sfree 48;"                               \
+               "sens $r1;"                               \
                /* Return to exception base/offset */     \
                "xret;"                                   \
-               "nop;"                                    \
-               "nop;"                                    \
-               "sfree 48;" : :                           \
+               "lwc  $r1 = [$r31 + 0];"                  \
+               "lwc  $r2 = [$r31 + 1];"                  \
+               "add  $r31 = $r31, 12;"                   \
+               : :                                       \
                /* Clobber everything */                  \
                : "$r1", "$r2", "$r3",                    \
                  "$r4", "$r5", "$r6", "$r7",             \

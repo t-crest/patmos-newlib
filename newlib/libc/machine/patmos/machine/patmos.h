@@ -17,8 +17,6 @@
 //
 // This file contains various Patmos related functions. 
 //
-// TODO maybe move stuff to separate headers? Too lazy for now.
-//
 
 #ifndef _MACHPATMOS_H
 #define _MACHPATMOS_H
@@ -62,8 +60,8 @@ static inline unsigned int get_cpuid()
  */
 static inline unsigned int get_cpu_freq()
 {
-  unsigned int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x4));
-  return id;
+  unsigned int freq = *((_iodev_ptr_t)(&_cpuinfo_base+0x4));
+  return freq;
 }
 
 
