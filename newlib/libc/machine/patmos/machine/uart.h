@@ -15,7 +15,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
 //
-// This code is partially based on Jack Whitham's spmsort package.
+// This header provides simple functions to send strings, characters and integers
+// over the UART.
 //
 
 
@@ -55,6 +56,9 @@ static inline void uart_print(const char* str)
     }
 }
 
+/**
+ * Print a single character to UART.
+ */
 static inline void uart_printc(char c)
 {
     _write(STDOUT_FILENO, &c, 1);
@@ -69,6 +73,9 @@ static inline void uart_println(const char* str)
     uart_printc('\n');
 }
 
+/**
+ * Print a signed integer using a decimal base to UART.
+ */
 static inline void uart_int(long long int i) 
 {
     char s[19];
@@ -90,6 +97,10 @@ static inline void uart_int(long long int i)
     _write(STDOUT_FILENO, p, len);
 }
 
+/**
+ * Print an unsigned integer as hexadecimal value with a fixed 
+ * number of digits to UART.
+ */
 static inline void uart_hex(long long unsigned i, unsigned digits)
 {
     char s[16];
@@ -107,18 +118,27 @@ static inline void uart_hex(long long unsigned i, unsigned digits)
     _write(STDOUT_FILENO, p, len);
 }
 
+/**
+ * Print a string followed by an integer to UART.
+ */
 static inline void uart_printd(const char* str, long long int i)
 {
     uart_print(str);
     uart_int(i);
 }
 
+/**
+ * Print a string followed by a hexadecimal value using a fixed number of digits to UART.
+ */
 static inline void uart_printh(const char* str, long long unsigned i, unsigned digits) 
 {
     uart_print(str);
     uart_hex(i, digits);
 }
 
+/**
+ * Print a string followed by a signed integer value and a newline character  to UART.
+ */
 static inline void uart_printdln(const char* str, long long int i)
 {
     uart_print(str);
@@ -126,6 +146,9 @@ static inline void uart_printdln(const char* str, long long int i)
     uart_printc('\n');
 }
 
+/**
+ * Print a string followed by a hexadecimal value and a newline character to UART.
+ */
 static inline void uart_printhln(const char* str, long long unsigned i, unsigned digits) 
 {
     uart_print(str);
