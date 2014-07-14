@@ -146,3 +146,58 @@ void __fini(void) {
     (*i)();
   }
 }
+
+
+
+void _sc_reserve() __attribute__((naked,used));
+void _sc_ensure() __attribute__((naked,used));
+void _sc_free() __attribute__((naked,used));
+
+/// function argument (words) is passed in scratch r1
+void _sc_reserve()
+{
+  // some counter
+  int i;
+
+  // copy argument to i
+  asm("mov %0 = $r1"
+      : "=r" (i) : "r" (i));
+
+  // XXX is this enough to reserve R9/R10 throughout the whole function?
+  asm volatile ("" ::: "$r3", "$r4", "$r5", "$r6", "$r7", "$r8", "$r9", "$r10");
+
+  // iterate something
+  while(1) {
+    if (!i)
+      break;
+    i--;
+    asm("nop"); // this is something
+  }
+
+}
+
+//
+// ensure/free cannot use r1, this would clobber the result, use an arg
+// register? r8?
+//
+void _sc_ensure() {
+}
+
+void _sc_free()  {
+  int i;
+  // copy argument to i
+  asm volatile("mov %0 = $r8"
+      : "=r" (i));
+
+  // XXX is this enough to reserve R9/R10 throughout the whole function?
+  // XXX we must not clobber the return regs at this point
+  asm volatile ("" ::: "$r1", "$r2", "$r9", "$r10");
+
+  // iterate something
+  while(1) {
+    if (!i)
+      break;
+    i--;
+    asm("nop"); // this is something
+  }
+}
