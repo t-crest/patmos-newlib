@@ -89,8 +89,11 @@ void _start()
   // setup stack frame and stack cache.
 
   // compute effective stack addresses (needed for CMPs)
-  const int stack_size =
-    (unsigned)&_shadow_stack_base - (unsigned)&_stack_cache_base;
+  int stack_size =
+    (unsigned)&_stack_cache_base - (unsigned)&_shadow_stack_base;
+  if (stack_size < 0) { // make sure to have a positive size
+    stack_size = -stack_size;
+  }
   const unsigned shadow_stack_base =
     (unsigned)&_shadow_stack_base - 2*stack_size*id;
   const unsigned stack_cache_base =
