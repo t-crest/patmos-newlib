@@ -18,11 +18,16 @@
 //******************************************************************************
 /// _exit - halt the processor.
 
-extern unsigned _loader_baseaddr;
-extern unsigned _loader_off;
+#include "patmos.h"
+
+extern unsigned _loader_baseaddr [];
+extern unsigned _loader_off [];
 
 void _exit(int status)
 {
+  // retrieve the id of the current core
+  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+
   // return to loader; halts if baseaddr and off are 0
   asm volatile ("mts $srb = %0;"
                 "mts $sro = %1;"
@@ -31,5 +36,5 @@ void _exit(int status)
                 "nop;"
                 "nop;"
                 "nop;"
-                : : "r" (_loader_baseaddr), "r" (_loader_off), "r" (status));
+                : : "r" (_loader_baseaddr[id]), "r" (_loader_off[id]), "r" (status));
 }
