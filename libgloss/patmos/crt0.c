@@ -40,13 +40,6 @@ void __fini(void) __attribute__((noinline));
 
 //******************************************************************************
 
-//******************************************************************************
-extern void _sc_reserve() __attribute__((naked,used));
-extern void _sc_ensure() __attribute__((naked,used));
-extern void _sc_free() __attribute__((naked,used));
-//******************************************************************************
-
-
 
 /// main - main function.
 extern int main(int argc, char **argv) __attribute__((noinline));
@@ -109,7 +102,12 @@ void _start()
                 "mts $ss  = %1;" // initialize the stack cache's spill pointer"
                 "mts $st  = %1;" // initialize the stack cache's top pointer"
                  : : "r" (shadow_stack_base), "r" (stack_cache_base));
-                
+
+  // XXX software stack cache setup
+  asm volatile ("mov $r27  = %0;" // XXX fix base value
+                "mov $r28  = %1;" // XXX fix base value
+                 : : "r" (0x1000), "r" (0x2000));
+
   // ---------------------------------------------------------------------------  
   // clear the BSS section
   // memset(&__bss_start, 0, &_end - &__bss_start);
