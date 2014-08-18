@@ -40,7 +40,7 @@ typedef struct {
 #define __LOCK_INIT(class,lock) \
   class _LOCK_T lock = __EMPTY_LOCK;
 #define __LOCK_INIT_RECURSIVE(class,lock) \
-  class _LOCK_RECURSIVE_T lock = { __EMPTY_LOCK, 0, 0 };
+  class _LOCK_RECURSIVE_T lock = { __EMPTY_LOCK, -1, 0 };
 
 
 #define __lock_init(lock)                  __patmos_lock_init(&(lock))

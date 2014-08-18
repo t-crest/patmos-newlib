@@ -45,7 +45,7 @@ int __patmos_lock_init(_LOCK_T *lock) {
 int __patmos_lock_init_recursive(_LOCK_RECURSIVE_T *lock) {
   __lock_init(lock->lock);
   _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
-  ll->owner = 0;
+  ll->owner = -1;
   ll->depth = 0;
   return 0;
 }
@@ -121,6 +121,7 @@ int __patmos_lock_release_recursive(_LOCK_RECURSIVE_T *lock) {
   ll->depth--;
 
   if (ll->depth == 0) {
+    ll->owner = -1; // reset owner to invalid ID
     __lock_release(lock->lock);
   }
 
