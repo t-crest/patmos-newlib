@@ -22,7 +22,7 @@
 #define _MACHPATMOS_H
 
 /**
- * Base address of the IO address range.
+ * Base address of the CPU info device.
  * Defined by patmos-clang driver as a symbol at link-time
  */
 extern char _cpuinfo_base;
@@ -66,12 +66,29 @@ static inline unsigned int get_cpu_freq()
 
 
 /**
- * Flush the data cache state.
+ * Base address of the exception unit.
  */
-static inline void flush_data_cache()
+extern char _excunit_base;
+
+/**
+ * The cache control register (in the exception unit).
+ */
+#define CACHE_CONTROL (*((_iodev_ptr_t)(&_excunit_base+0x14)))
+
+/**
+ * Invalidate the data cache.
+ */
+static inline void inval_dcache()
 {
-    // TODO implement
+  CACHE_CONTROL = 0x01;
 }
 
+/**
+ * Invalidate the method cache.
+ */
+static inline void inval_mcache()
+{
+  CACHE_CONTROL = 0x02;
+}
 
 #endif /* _MACHPATMOS_H */
