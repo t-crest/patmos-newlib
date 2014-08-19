@@ -89,6 +89,9 @@ int __patmos_lock_acquire(_LOCK_T *lock) {
     }
   }
 
+  // invalidate data cache to establish cache coherence
+  inval_dcache();
+
   return 0;
 }
 
