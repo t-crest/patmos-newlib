@@ -16,6 +16,7 @@
 // (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
 
 #include <stddef.h>
+#include <stdlib.h>
 #include <reent.h>
 
 #include "patmos.h"
@@ -69,9 +70,9 @@ unsigned _loader_baseaddr[MAX_CORES];
 unsigned _loader_off[MAX_CORES];
 
 /// _reent_ptr - data structure for reentrant library calls
-struct _reent _reent_data [MAX_CORES];
+struct _reent *_reent_ptr [MAX_CORES];
 /// __initreent - initialize reentrancy structure
-void __initreent(struct _reent *ptr) __attribute__((noinline));
+void __initreent(void) __attribute__((noinline));
 
 //******************************************************************************
 /// _start - main entry function to all patmos executables.
@@ -118,7 +119,7 @@ void _start()
 
   // ---------------------------------------------------------------------------  
   // initialize reentrancy structure
-  __initreent(__getreent());
+  __initreent();
 
   // ---------------------------------------------------------------------------  
   // call initializers
@@ -161,13 +162,15 @@ void __fini(void) {
 }
 
 /// __initreent - initialize reentrancy structure
-void __initreent(struct _reent *ptr) {
-  _REENT_INIT_PTR(ptr);
+void __initreent(void) {
+  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  _reent_ptr[id] = malloc(sizeof(struct _reent));
+  _REENT_INIT_PTR(_reent_ptr[id]);
 }
 
 /// __getreent - get reentrancy structure for current thread
 struct _reent *__getreent(void)
 {
   const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
-  return &_reent_data[id];
+  return _reent_ptr[id];
 }
