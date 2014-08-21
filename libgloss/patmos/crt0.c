@@ -39,7 +39,12 @@ extern funptr_t __fini_array_end[0];
 void __fini(void) __attribute__((noinline));
 
 //******************************************************************************
+/// stack cache functions
+extern void _sc_reserve() __attribute__((naked,used));
+extern void _sc_ensure() __attribute__((naked,used));
+extern void _sc_free() __attribute__((naked,used));
 
+//******************************************************************************
 
 /// main - main function.
 extern int main(int argc, char **argv) __attribute__((noinline));
@@ -68,11 +73,15 @@ unsigned _loader_baseaddr[MAX_CORES];
 unsigned _loader_off[MAX_CORES];
 
 //******************************************************************************
+int stack_size;
+   
+//******************************************************************************
+
 /// _start - main entry function to all patmos executables.
 /// Setup the stack frame, initialize data structures, invoke main, et cetera.
 void _start() __attribute__((naked,used));
 
-void _start()
+void _start() 
 {
   // retrieve the id of the current core
   const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
@@ -93,7 +102,8 @@ void _start()
     (unsigned)&_stack_cache_base - (unsigned)&_shadow_stack_base;
   if (stack_size < 0) { // make sure to have a positive size
     stack_size = -stack_size;
-  }
+   }
+    
   const unsigned shadow_stack_base =
     (unsigned)&_shadow_stack_base - 2*stack_size*id;
   const unsigned stack_cache_base =
@@ -109,7 +119,7 @@ void _start()
   // XXX software stack cache setup
   asm volatile ("mov $r27  = %0;" // XXX fix base value
                 "mov $r28  = %1;" // XXX fix base value
-                 : : "r" (0x1000), "r" (0x2000));
+                 : : "r" (0x3300), "r" (0x3300));
 
   // ---------------------------------------------------------------------------  
   // clear the BSS section
@@ -154,6 +164,7 @@ void __fini(void) {
     (*i)();
   }
 }
+
 
 
 

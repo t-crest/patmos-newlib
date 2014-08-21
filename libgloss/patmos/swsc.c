@@ -15,49 +15,49 @@
 // You should have received a copy of the GNU Lesser General Public License
 // (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
 
-#include <stddef.h>
-#include <stdint.h>
-#include "patmos.h"
+#include <stdio.h>
+#include <machine/patmos.h>
+#include <machine/spm.h>
+
+/// get stack cache size from crt0
+extern int stack_size;
+//extern int _sc_size() __attribute__((naked,used));;
 
 void _sc_reserve() __attribute__((naked,used));
 void _sc_ensure() __attribute__((naked,used));
 void _sc_free() __attribute__((naked,used));
 
+
+
 /// function argument (words) is passed in scratch r1
 void _sc_reserve()
 {
   // some counter
-  int i, nspill;
+  int n, n_spill, i;
+   _SPM unsigned int *sc_top, *m_top;
 
-  // copy argument to i
-  asm("mov %0 = $r1"
-      : "=r" (i) 
-      : "r" (i));
+  asm("mov %0 = $r1;" // copy argument to n
+      "mov %1 = $r27;" // copy st to sc_top
+      "mov %2 = $r28;" // copy ss to m_top
+     // : "=r" (n) 
+      : "=r" (n), "=r"(sc_top), "=r"(m_top));
+
+  // n_spill = m_top - sc_top - stack_size;
+
+   for (i = 0; i < 5; i++){
+        
+	m_top -= 0x01;
+	*m_top = *sc_top;
+         
+  }
+
 
   // XXX is this enough to reserve R9/R10 throughout the whole function?
   asm volatile ("" ::: "$r3", "$r4", "$r5", "$r6", "$r7", "$r8", "$r9", "$r10");
-   
 
- /* for (uint32_t x=0; x < ; x++)
-        {
-           // Assumes dwSomeValue is not zero.
-           asm ("bsfl %1,%0"
-             : "=r" (dwRes)
-             : "r" (dwSomeValue)
-             : "cc");
-     
-           printf("%u: %u %u\n", x, dwSomeValue, dwRes);
-        }*/
-
- /* // iterate something
-  while(1) {
-    if (!i)
-      break;
-    i--;
-    asm("nop"); // this is something
-  }*/
 
 }
+
 
 //
 // ensure/free cannot use r1, this would clobber the result, use an arg
