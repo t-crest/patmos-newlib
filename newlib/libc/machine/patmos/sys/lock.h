@@ -18,6 +18,8 @@
 #ifndef __SYS_LOCK_H__
 #define __SYS_LOCK_H__
 
+#ifndef __rtems__
+
 #ifndef MAX_CORES
 #define MAX_CORES 64
 #endif
@@ -65,6 +67,30 @@ extern int __patmos_lock_try_acquire(_LOCK_T *lock);
 extern int __patmos_lock_try_acquire_recursive(_LOCK_RECURSIVE_T *lock);
 extern int __patmos_lock_release(_LOCK_T *lock);
 extern int __patmos_lock_release_recursive(_LOCK_RECURSIVE_T *lock);
+
+#else /* __rtems__ */
+
+/* TODO: these are just dummies, replace with actual RTEMS locking functions */
+
+typedef int _LOCK_T;
+typedef int _LOCK_RECURSIVE_T;
+ 
+#include <_ansi.h>
+
+#define __LOCK_INIT(class,lock) static int lock = 0;
+#define __LOCK_INIT_RECURSIVE(class,lock) static int lock = 0;
+#define __lock_init(lock) (_CAST_VOID 0)
+#define __lock_init_recursive(lock) (_CAST_VOID 0)
+#define __lock_close(lock) (_CAST_VOID 0)
+#define __lock_close_recursive(lock) (_CAST_VOID 0)
+#define __lock_acquire(lock) (_CAST_VOID 0)
+#define __lock_acquire_recursive(lock) (_CAST_VOID 0)
+#define __lock_try_acquire(lock) (_CAST_VOID 0)
+#define __lock_try_acquire_recursive(lock) (_CAST_VOID 0)
+#define __lock_release(lock) (_CAST_VOID 0)
+#define __lock_release_recursive(lock) (_CAST_VOID 0)
+
+#endif
 
 #endif /* __SYS_LOCK_H__ */
 

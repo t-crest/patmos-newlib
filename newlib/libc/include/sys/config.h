@@ -92,7 +92,7 @@
 #endif
 #endif
 
-#ifdef __patmos__
+#if defined(__patmos__) && !defined(__rtems__)
 /* we want the reentrancy structure to be returned by a function */
 #define __DYNAMIC_REENT__
 #endif
