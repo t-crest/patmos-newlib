@@ -30,6 +30,7 @@ void _sc_free() __attribute__((naked,used));
 
 
 /// function argument (words) is passed in scratch r1
+#if 0
 void _sc_reserve()
 {
   // some counter
@@ -52,11 +53,10 @@ void _sc_reserve()
   }
 
 
-  // XXX is this enough to reserve R9/R10 throughout the whole function?
-  asm volatile ("" ::: "$r3", "$r4", "$r5", "$r6", "$r7", "$r8", "$r9", "$r10");
 
 
 }
+#endif
 
 
 //
@@ -67,14 +67,12 @@ void _sc_ensure() {
 }
 
 void _sc_free()  {
+#if 0
   int i;
   // copy argument to i
   asm volatile("mov %0 = $r8"
       : "=r" (i));
 
-  // XXX is this enough to reserve R9/R10 throughout the whole function?
-  // XXX we must not clobber the return regs at this point
-  asm volatile ("" ::: "$r1", "$r2", "$r9", "$r10");
 
   // iterate something
   while(1) {
@@ -83,4 +81,5 @@ void _sc_free()  {
     i--;
     asm("nop"); // this is something
   }
+#endif
 }
