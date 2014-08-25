@@ -92,6 +92,11 @@
 #endif
 #endif
 
+#if defined(__patmos__) && !defined(__rtems__)
+/* we want the reentrancy structure to be returned by a function */
+#define __DYNAMIC_REENT__
+#endif
+
 #ifdef __mn10200__
 #define __SMALL_BITFIELDS
 #endif
