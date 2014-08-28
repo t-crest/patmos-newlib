@@ -74,7 +74,7 @@ unsigned _loader_off[MAX_CORES];
 
 //******************************************************************************
 int stack_size;
-   
+int _addr_base_spm, _addr_base_ext;   
 //******************************************************************************
 
 /// _start - main entry function to all patmos executables.
@@ -117,9 +117,16 @@ void _start()
                  : : "r" (shadow_stack_base), "r" (stack_cache_base));
 
   // XXX software stack cache setup
+  int* brk;
+  brk = sbrk(0xffff);
+  _addr_base_spm = stack_cache_base; // keep swsc sp
+  _addr_base_ext = &brk - 0xffff;  // keep swsc m_top
+
   asm volatile ("mov $r27  = %0;" // XXX fix base value
                 "mov $r28  = %1;" // XXX fix base value
-                 : : "r" (0x3300), "r" (0x3300));
+                 : : "r" (_addr_base_spm), "r" (_addr_base_ext));
+
+
 
   // ---------------------------------------------------------------------------  
   // clear the BSS section

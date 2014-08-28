@@ -30,12 +30,13 @@ void _sc_free() __attribute__((naked,used));
 
 
 /// function argument (words) is passed in scratch r1
-#if 0
+
 void _sc_reserve()
 {
   // some counter
   int n, n_spill, i;
-   _SPM unsigned int *sc_top, *m_top;
+   _SPM unsigned int *sc_top;
+   _UNCACHED unsigned int *m_top;
 
   asm("mov %0 = $r1;" // copy argument to n
       "mov %1 = $r27;" // copy st to sc_top
@@ -47,7 +48,7 @@ void _sc_reserve()
 
    for (i = 0; i < 5; i++){
         
-	m_top -= 0x01;
+	//m_top -= 0x01;
 	*m_top = *sc_top;
          
   }
@@ -56,7 +57,7 @@ void _sc_reserve()
 
 
 }
-#endif
+
 
 
 //
