@@ -73,7 +73,7 @@ unsigned _loader_baseaddr[MAX_CORES];
 unsigned _loader_off[MAX_CORES];
 
 //******************************************************************************
-int stack_size;
+// global bases for software stack cache
 int _addr_base_spm, _addr_base_ext;   
 //******************************************************************************
 
@@ -117,10 +117,10 @@ void _start()
                  : : "r" (shadow_stack_base), "r" (stack_cache_base));
 
   // XXX software stack cache setup
-  int* brk;
-  brk = sbrk(0xffff);
-  _addr_base_spm = stack_cache_base; // keep swsc sp
-  _addr_base_ext = &brk - 0xffff;  // keep swsc m_top
+  const int SWSC_SIZE = 32 * 1024; // 32k total size (spill zone) for stack cache
+  void* brk = sbrk(SWSC_SIZE);
+  _addr_base_ext = ((int) brk) + SWSC_SIZE; // swsc ext base
+  _addr_base_spm = 0x800; // small (2k) SPM stack cache from 0x800 down
 
   asm volatile ("mov $r27  = %0;" // XXX fix base value
                 "mov $r28  = %1;" // XXX fix base value
