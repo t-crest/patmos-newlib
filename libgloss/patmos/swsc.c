@@ -31,6 +31,7 @@ void _sc_free() __attribute__((naked,used));
 
 /// function argument (words) is passed in scratch r1
 
+#if 0
 void _sc_reserve()
 {
   // some counter
@@ -52,11 +53,8 @@ void _sc_reserve()
 	*m_top = *sc_top;
          
   }
-
-
-
-
 }
+#endif
 
 
 
