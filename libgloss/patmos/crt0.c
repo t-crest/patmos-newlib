@@ -122,7 +122,7 @@ void _start()
 
   // XXX software stack cache setup
   
-  void* brk = sbrk(SWSC_SIZE);
+  void* brk = _sbrk(SWSC_SIZE);
   _addr_base_ext = ((int) brk) + SWSC_SIZE; // swsc ext base
   _addr_base_spm = 0x800; // small (2k) SPM stack cache from 0x800 down
   _spm_ext_diff = _addr_base_ext - _addr_base_spm;
