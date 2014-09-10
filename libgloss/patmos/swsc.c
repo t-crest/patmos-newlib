@@ -60,13 +60,19 @@ void _sc_reserve()
 
 //
 // ensure/free cannot use r1, this would clobber the result, use an arg
-// register? r8?
+// register: r8 for now
 //
-void _sc_ensure() {
-}
-
-void _sc_free()  {
 #if 0
+void _sc_ensure() {
+  int i;
+  // copy argument to i
+  asm volatile("mov %0 = $r8"
+      : "=r" (i));
+}
+#endif
+
+#if 0
+void _sc_free()  {
   int i;
   // copy argument to i
   asm volatile("mov %0 = $r8"
@@ -80,5 +86,5 @@ void _sc_free()  {
     i--;
     asm("nop"); // this is something
   }
-#endif
 }
+#endif
