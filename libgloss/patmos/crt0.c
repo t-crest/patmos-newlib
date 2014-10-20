@@ -74,11 +74,12 @@ unsigned _loader_off[MAX_CORES];
 
 //******************************************************************************
 // global bases for software stack cache
-int _addr_base_spm, _addr_base_ext;   
+unsigned _addr_base_spm, _addr_base_ext;   
 // different of software stack base addresses
-int _spm_ext_diff; 
+unsigned _spm_ext_diff; 
 // software stack cache size
-int SWSC_SIZE = 32 * 1024; // 32k total size (spill zone) for stack cache
+unsigned SWSC_EXT_SIZE = 32 * 1024; // 32k total size (spill zone) for stack cache
+unsigned SWSC_SPM_SIZE = 32; // 32 byte total size of stack cache
 //******************************************************************************
 
 /// _start - main entry function to all patmos executables.
@@ -122,9 +123,9 @@ void _start()
 
   // XXX software stack cache setup
   
-  void* brk = _sbrk(SWSC_SIZE);
-  _addr_base_ext = ((int) brk) + SWSC_SIZE; // swsc ext base
-  _addr_base_spm = 0x800; // small (2k) SPM stack cache from 0x800 down
+  void* brk = _sbrk(SWSC_EXT_SIZE);
+  _addr_base_ext = (unsigned)((int) brk) + SWSC_EXT_SIZE; // swsc ext base
+  _addr_base_spm = 0x20; // small (2k) SPM stack cache from 0x800 down
   _spm_ext_diff = _addr_base_ext - _addr_base_spm;
 
   asm volatile ("mov $r27  = %0;" // XXX fix base value
