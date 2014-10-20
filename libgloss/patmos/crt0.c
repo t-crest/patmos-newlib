@@ -24,6 +24,7 @@ extern int __bss_start, _end;
 
 /// top of stack cache and shadow stack
 extern int _shadow_stack_base, _stack_cache_base;
+extern int _swsc_spm_size;
 
 //******************************************************************************
 typedef void (*funptr_t)(void);
@@ -79,7 +80,7 @@ unsigned _addr_base_spm, _addr_base_ext;
 unsigned _spm_ext_diff; 
 // software stack cache size
 unsigned SWSC_EXT_SIZE = 32 * 1024; // 32k total size (spill zone) for stack cache
-unsigned SWSC_SPM_SIZE = 32; // 32 byte total size of stack cache
+unsigned SWSC_SPM_SIZE; // defined by -mpatmos-swsc-spm-size
 //******************************************************************************
 
 /// _start - main entry function to all patmos executables.
@@ -125,7 +126,8 @@ void _start()
   
   void* brk = _sbrk(SWSC_EXT_SIZE);
   _addr_base_ext = (unsigned)((int) brk) + SWSC_EXT_SIZE; // swsc ext base
-  _addr_base_spm = 0x20; // small (2k) SPM stack cache from 0x800 down
+  SWSC_SPM_SIZE = (unsigned)&_swsc_spm_size; // hack: size is address of symbol
+  _addr_base_spm = 0 + SWSC_SPM_SIZE; // SPM cache grows towards 0
   _spm_ext_diff = _addr_base_ext - _addr_base_spm;
 
   asm volatile ("mov $r27  = %0;" // XXX fix base value
