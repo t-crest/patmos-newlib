@@ -75,9 +75,9 @@ unsigned _loader_off[MAX_CORES];
 
 //******************************************************************************
 // global bases for software stack cache
-unsigned _addr_base_spm, _addr_base_ext;   
+unsigned _addr_base_spm, _addr_base_ext;
 // different of software stack base addresses
-unsigned _spm_ext_diff; 
+//unsigned _spm_ext_diff; 
 // software stack cache size
 unsigned SWSC_EXT_SIZE = 32 * 1024; // 32k total size (spill zone) for stack cache
 unsigned SWSC_SPM_SIZE; // defined by -mpatmos-swsc-spm-size
@@ -127,8 +127,8 @@ void _start()
   void* brk = _sbrk(SWSC_EXT_SIZE);
   _addr_base_ext = (unsigned)((int) brk) + SWSC_EXT_SIZE; // swsc ext base
   SWSC_SPM_SIZE = (unsigned)&_swsc_spm_size; // hack: size is address of symbol
-  _addr_base_spm = _addr_base_ext + SWSC_SPM_SIZE; // SPM cache grows towards 0
-  _spm_ext_diff = _addr_base_ext - _addr_base_spm;
+  _addr_base_spm = _addr_base_ext;
+  //_spm_ext_diff = _addr_base_ext - _addr_base_spm;
 
   asm volatile ("mov $r27  = %0;" // XXX fix base value
                 "mov $r28  = %1;" // XXX fix base value
