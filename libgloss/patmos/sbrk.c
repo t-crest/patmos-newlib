@@ -24,7 +24,7 @@ extern char __heap_start, __heap_end;
 
 //******************************************************************************
 /// _sbrk - get additional memory.
-void *_sbrk(int nbytes) __attribute__((naked,used));
+void *_sbrk(int nbytes) __attribute__((naked,used,patmos_preserve_tmp));
 void *_sbrk(int nbytes)
 {
   static char *heap_ptr = &__heap_start;
