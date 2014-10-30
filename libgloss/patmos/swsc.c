@@ -16,75 +16,144 @@
 // (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <machine/patmos.h>
 #include <machine/spm.h>
+ 
+extern unsigned _addr_base_spm;
+extern unsigned _addr_base_ext;
+extern unsigned _spm_ext_diff;
+extern unsigned SWSC_EXT_SIZE;
+extern unsigned SWSC_SPM_SIZE;
 
-/// get stack cache size from crt0
-extern int stack_size;
-//extern int _sc_size() __attribute__((naked,used));;
+#define MASK (SWSC_SPM_SIZE - 1)
 
-void _sc_reserve() __attribute__((naked,used));
-void _sc_ensure() __attribute__((naked,used));
-void _sc_free() __attribute__((naked,used));
+// define to poison SPM when spilling word
+#define POISON
+// define to disable filling (check if poisoned value comes back)
+// undefine to test whether spill/fill works
+//#define NOENSURE
 
-
-
-/// function argument (words) is passed in scratch r1
-
-#if 0
+int test;
+#if 1
+void _sc_reserve() __attribute__((naked,used,patmos_preserve_tmp));
 void _sc_reserve()
 {
-  // some counter
-  int n, n_spill, i;
-   _SPM unsigned int *sc_top;
-   _UNCACHED unsigned int *m_top;
 
-  asm("mov %0 = $r1;" // copy argument to n
+  int n, m_top, sc_top;
+  unsigned spilled_word;
+  int   i;
+  int  n_spill;
+  asm volatile("mov %0 = $r1;" // copy argument to n
       "mov %1 = $r27;" // copy st to sc_top
       "mov %2 = $r28;" // copy ss to m_top
-     // : "=r" (n) 
-      : "=r" (n), "=r"(sc_top), "=r"(m_top));
+      : "=r" (n), "=r"(sc_top), "=r"(m_top) 
+      ::
+      );
 
-  // n_spill = m_top - sc_top - stack_size;
 
-   for (i = 0; i < 5; i++){
-        
-	//m_top -= 0x01;
-	*m_top = *sc_top;
-         
+
+  sc_top -= n * 4;
+  n_spill = (m_top - sc_top - (int) SWSC_SPM_SIZE) / 4;
+
+
+  for (i = 0; i < n_spill; i++){
+    m_top -= 4;
+    _SPM unsigned *spm = (_SPM unsigned *) (m_top & MASK);
+    _UNCACHED unsigned *ext_mem = (_UNCACHED unsigned *) (m_top);
+    #ifdef POISON
+      spilled_word = *spm;
+      *spm = -1;
+    #else
+      spilled_word = *spm;
+    #endif
+    *ext_mem = spilled_word;
   }
+
+  asm volatile(
+      "mov $r27 = %0;" // copy sc_top to st
+      "mov $r28 = %1;" // copy m_top to ss
+      : 
+      : "r"(sc_top), "r"(m_top) 
+      : "$r27", "$r28" 
+      );
+
+
+}
+#endif
+
+#if 1
+void _sc_ensure() __attribute__((naked,used,patmos_preserve_tmp,patmos_preserve_ret));
+void _sc_ensure()
+{
+#if 1
+  int  n, m_top, sc_top;
+  unsigned filled_word;
+  int i, n_fill;
+  asm volatile(
+      "mov %0 = $r8;" // copy argument to n
+      "mov %1 = $r27;" // copy st to sc_top
+      "mov %2 = $r28;" // copy ss to m_top
+      : "=r" (n), "=r"(sc_top), "=r"(m_top) 
+      ::
+      );
+
+  n_fill = (n*4 - (m_top - sc_top)) / 4;
+
+  for (i = 0; i < n_fill; i++){
+    _SPM unsigned *spm = (_SPM unsigned *) (m_top & MASK);
+    _UNCACHED unsigned *ext_mem = (_UNCACHED unsigned *) (m_top);
+
+    filled_word = *ext_mem;
+    #ifndef NOENSURE
+      *spm = filled_word;
+    #endif
+    m_top += 4;
+  }
+
+
+  asm volatile(
+      "mov $r27 = %0;" // sc_top
+      "mov $r28 = %1;" // m_top
+      :
+      : "r"(sc_top), "r"(m_top)
+      : "$r27", "$r28"
+      );
+
+
+#endif
 }
 #endif
 
 
+#if 1
+void _sc_free() __attribute__((naked,used,patmos_preserve_tmp,patmos_preserve_ret));
+void _sc_free()
+{
+#if 1
+  int sc_top, m_top, n;
 
-//
-// ensure/free cannot use r1, this would clobber the result, use an arg
-// register: r8 for now
-//
-#if 0
-void _sc_ensure() {
-  int i;
-  // copy argument to i
-  asm volatile("mov %0 = $r8"
-      : "=r" (i));
-}
-#endif
+  asm volatile(
+      "mov %0 = $r8;" // copy argument to n
+      "mov %1 = $r27;" // copy st to sc_top
+      "mov %2 = $r28;" // copy ss to m_top
+      : "=r" (n), "=r"(sc_top), "=r"(m_top) /* output regs */
+      ::
+      );
 
-#if 0
-void _sc_free()  {
-  int i;
-  // copy argument to i
-  asm volatile("mov %0 = $r8"
-      : "=r" (i));
-
-
-  // iterate something
-  while(1) {
-    if (!i)
-      break;
-    i--;
-    asm("nop"); // this is something
+  sc_top += n*4;
+   
+  if (sc_top > m_top) {
+  m_top = sc_top ;
   }
+
+  asm volatile(
+      "mov $r27 = %0;" // copy sc_top to st
+      "mov $r28 = %1;" // copy m_top to ss
+      : /* no output regs */
+      : "r"(sc_top), "r"(m_top) /* input regs */
+      : "$r27", "$r28" /* clobbered */
+      );
+#endif
 }
 #endif
