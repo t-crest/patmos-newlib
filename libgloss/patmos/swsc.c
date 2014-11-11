@@ -40,7 +40,7 @@ void _sc_reserve() __attribute__((naked,used,patmos_preserve_tmp));
 void _sc_reserve()
 {
 
-  int n, m_top, sc_top;
+  int n, m_top, sc_top, s0;
   unsigned spilled_word;
   int   i;
   int  n_spill;
@@ -48,6 +48,11 @@ void _sc_reserve()
       "mov %1 = $r27;" // copy st to sc_top
       "mov %2 = $r28;" // copy ss to m_top
       : "=r" (n), "=r"(sc_top), "=r"(m_top) 
+      ::
+      );
+  asm volatile(
+      "mfs %0 = $s0;"
+      : "=r"(s0) /* output regs */
       ::
       );
 
@@ -77,8 +82,12 @@ void _sc_reserve()
       : "r"(sc_top), "r"(m_top) 
       : "$r27", "$r28" 
       );
-
-
+  asm volatile(
+      "mts $s0 = %0;"
+      :
+      : "r"(s0) /* input regs */
+      :
+      );
 }
 #endif
 
@@ -87,7 +96,7 @@ void _sc_ensure() __attribute__((naked,used,patmos_preserve_tmp,patmos_preserve_
 void _sc_ensure()
 {
 #if 1
-  int  n, m_top, sc_top;
+  int  n, m_top, sc_top, s0;
   unsigned filled_word;
   int i, n_fill;
   asm volatile(
@@ -95,6 +104,11 @@ void _sc_ensure()
       "mov %1 = $r27;" // copy st to sc_top
       "mov %2 = $r28;" // copy ss to m_top
       : "=r" (n), "=r"(sc_top), "=r"(m_top) 
+      ::
+      );
+  asm volatile(
+      "mfs %0 = $s0;"
+      : "=r"(s0) /* output regs */
       ::
       );
 
@@ -119,6 +133,12 @@ void _sc_ensure()
       : "r"(sc_top), "r"(m_top)
       : "$r27", "$r28"
       );
+  asm volatile(
+      "mts $s0 = %0;"
+      :
+      : "r"(s0) /* input regs */
+      :
+      );
 
 
 #endif
@@ -131,13 +151,14 @@ void _sc_free() __attribute__((naked,used,patmos_preserve_tmp,patmos_preserve_re
 void _sc_free()
 {
 #if 1
-  int sc_top, m_top, n;
+  int sc_top, m_top, n, s0;
 
   asm volatile(
       "mov %0 = $r8;" // copy argument to n
       "mov %1 = $r27;" // copy st to sc_top
       "mov %2 = $r28;" // copy ss to m_top
-      : "=r" (n), "=r"(sc_top), "=r"(m_top) /* output regs */
+      "mfs %3 = $s0;"
+      : "=r" (n), "=r"(sc_top), "=r"(m_top), "=r"(s0) /* output regs */
       ::
       );
 
@@ -150,8 +171,9 @@ void _sc_free()
   asm volatile(
       "mov $r27 = %0;" // copy sc_top to st
       "mov $r28 = %1;" // copy m_top to ss
+      "mts $s0 = %2;"
       : /* no output regs */
-      : "r"(sc_top), "r"(m_top) /* input regs */
+      : "r"(sc_top), "r"(m_top), "r"(s0) /* input regs */
       : "$r27", "$r28" /* clobbered */
       );
 #endif
