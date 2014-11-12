@@ -16,6 +16,8 @@
 // (COPYING3.LIB). If not, see <http://www.gnu.org/licenses/>.
 
 #include <stddef.h>
+#include <stdlib.h>
+#include <reent.h>
 #include "patmos.h"
 
 //******************************************************************************
@@ -72,6 +74,11 @@ char **environ = __env;
 unsigned _loader_baseaddr[MAX_CORES];
 /// _loader_off - the offset of the loading function (one per core)
 unsigned _loader_off[MAX_CORES];
+
+/// _reent_ptr - data structure for reentrant library calls
+struct _reent *_reent_ptr [MAX_CORES];
+/// __initreent - initialize reentrancy structure
+void __initreent(void) __attribute__((noinline));
 
 //******************************************************************************
 // global bases for software stack cache
@@ -141,6 +148,10 @@ void _start()
   // memset(&__bss_start, 0, &_end - &__bss_start);
 
   // ---------------------------------------------------------------------------  
+  // initialize reentrancy structure
+  __initreent();
+
+  // ---------------------------------------------------------------------------  
   // call initializers
   __init();
  
@@ -178,6 +189,20 @@ void __fini(void) {
   for (funptr_t *i = __fini_array_end-1; i >= __fini_array_begin; --i) {
     (*i)();
   }
+}
+
+/// __initreent - initialize reentrancy structure
+void __initreent(void) {
+  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  _reent_ptr[id] = malloc(sizeof(struct _reent));
+  _REENT_INIT_PTR(_reent_ptr[id]);
+}
+
+/// __getreent - get reentrancy structure for current thread
+struct _reent *__getreent(void)
+{
+  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  return _reent_ptr[id];
 }
 
 

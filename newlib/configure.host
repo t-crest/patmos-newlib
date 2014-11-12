@@ -699,6 +699,7 @@ case "${host}" in
 	newlib_cflags="${newlib_cflags} -D_NO_GETLOGIN -D_NO_GETPWENT -D_NO_GETUT -D_NO_GETPASS -D_NO_SIGSET -D_NO_WORDEXP -D_NO_POPEN -D_NO_GLOB -D_NO_EXECVE"
 	# We do not support directories, disable compiling stand-in functions
 	newlib_cflags="${newlib_cflags} -DHAVE_OPENDIR"
+	newlib_cflags="${newlib_cflags} -D_REENT_NOGLOBAL"
 	;;
   powerpc*-*-eabialtivec*)
 	default_newlib_io_long_long="yes"

@@ -816,7 +816,9 @@ struct _reent
 #endif
 
 extern struct _reent *_impure_ptr __ATTRIBUTE_IMPURE_PTR__;
+#ifndef _REENT_NOGLOBAL
 extern struct _reent *_CONST _global_impure_ptr __ATTRIBUTE_IMPURE_PTR__;
+#endif
 
 void _reclaim_reent _PARAMS ((struct _reent *));
 
@@ -835,7 +837,11 @@ void _reclaim_reent _PARAMS ((struct _reent *));
 
 #endif /* !_REENT_ONLY */
 
+#ifndef _REENT_NOGLOBAL
 #define _GLOBAL_REENT _global_impure_ptr
+#else
+#define _GLOBAL_REENT _REENT
+#endif
 
 #ifdef __cplusplus
 }
