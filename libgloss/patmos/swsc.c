@@ -29,7 +29,7 @@ extern unsigned SWSC_SPM_SIZE;
 #define MASK (SWSC_SPM_SIZE - 1)
 
 // define to poison SPM when spilling word
-#define POISON
+//#define POISON
 // define to disable filling (check if poisoned value comes back)
 // undefine to test whether spill/fill works
 //#define NOENSURE
