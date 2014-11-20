@@ -86,8 +86,9 @@ unsigned _addr_base_spm, _addr_base_ext;
 // different of software stack base addresses
 //unsigned _spm_ext_diff; 
 // software stack cache size
-unsigned SWSC_EXT_SIZE = 32 * 1024; // 32k total size (spill zone) for stack cache
-unsigned SWSC_SPM_SIZE; // defined by -mpatmos-swsc-spm-size
+const unsigned SWSC_EXT_SIZE = 32 * 1024; // 32k total size (spill zone) for stack cache
+// defined by -mpatmos-swsc-spm-size (hack: size is address of symbol)
+const unsigned SWSC_SPM_SIZE = (unsigned)&_swsc_spm_size;
 //******************************************************************************
 
 /// _start - main entry function to all patmos executables.
@@ -133,7 +134,6 @@ void _start()
   
   void* brk = _sbrk(SWSC_EXT_SIZE);
   _addr_base_ext = (unsigned)((int) brk) + SWSC_EXT_SIZE; // swsc ext base
-  SWSC_SPM_SIZE = (unsigned)&_swsc_spm_size; // hack: size is address of symbol
   _addr_base_spm = _addr_base_ext;
   //_spm_ext_diff = _addr_base_ext - _addr_base_spm;
 

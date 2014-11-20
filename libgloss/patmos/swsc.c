@@ -127,11 +127,10 @@ void _sc_ensure()
 
 
   asm volatile(
-      "mov $r27 = %0;" // sc_top
-      "mov $r28 = %1;" // m_top
+      "mov $r28 = %0;" // m_top
       :
-      : "r"(sc_top), "r"(m_top)
-      : "$r27", "$r28"
+      : "r"(m_top)
+      : "$r28"
       );
   asm volatile(
       "mts $s0 = %0;"
