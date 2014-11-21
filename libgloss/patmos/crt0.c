@@ -137,8 +137,8 @@ void _start()
   _addr_base_spm = _addr_base_ext;
   //_spm_ext_diff = _addr_base_ext - _addr_base_spm;
 
-  asm volatile ("mov $r27  = %0;" // XXX fix base value
-                "mov $r28  = %1;" // XXX fix base value
+  asm volatile ("mov $r19  = %0;" // XXX fix base value
+                "mov $r20  = %1;" // XXX fix base value
                  : : "r" (_addr_base_spm), "r" (_addr_base_ext));
 
 
