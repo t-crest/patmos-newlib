@@ -36,11 +36,11 @@ extern unsigned SWSC_SPM_SIZE;
 
 int test;
 #if 1
-void _sc_reserve() __attribute__((naked,used,patmos_preserve_tmp));
+void _sc_reserve() __attribute__((naked,used,patmos_sc_func));
 void _sc_reserve()
 {
 
-  int n, m_top, sc_top, s0;
+  int n, m_top, sc_top;
   unsigned spilled_word;
   int   i;
   int  n_spill;
@@ -48,11 +48,6 @@ void _sc_reserve()
       "mov %1 = $r19;" // copy st to sc_top
       "mov %2 = $r20;" // copy ss to m_top
       : "=r" (n), "=r"(sc_top), "=r"(m_top) 
-      ::
-      );
-  asm volatile(
-      "mfs %0 = $s0;"
-      : "=r"(s0) /* output regs */
       ::
       );
 
@@ -82,28 +77,21 @@ void _sc_reserve()
       : "r"(sc_top), "r"(m_top) 
       : "$r19", "$r20" 
       );
-  asm volatile(
-      "mts $s0 = %0;"
-      :
-      : "r"(s0) /* input regs */
-      :
-      );
 }
 #endif
 
 #if 1
-void _sc_ensure() __attribute__((naked,used,patmos_preserve_tmp,patmos_preserve_ret));
+void _sc_ensure() __attribute__((naked,used,patmos_sc_func,patmos_preserve_ret));
 void _sc_ensure()
 {
 #if 1
-  int  n, m_top, sc_top, s0;
+  int  n, m_top, sc_top;
   unsigned filled_word;
   int i, n_fill;
   asm (
       "mov %0 = $r8;" // copy argument to n
       "mov %1 = $r19;" // copy st to sc_top
       "mov %2 = $r20;" // copy ss to m_top
-      "mfs $r8 = $s0;" // save s0
       : "=r" (n), "=r"(sc_top), "=r"(m_top) 
       ::
       );
@@ -124,7 +112,6 @@ void _sc_ensure()
 
   asm volatile(
       "mov $r20 = %0;" // m_top
-      "mts $s0 = $r8;" // restore s0
       :
       : "r"(m_top)
       : "$r20"
@@ -136,18 +123,17 @@ void _sc_ensure()
 
 
 #if 1
-void _sc_free() __attribute__((naked,used,patmos_preserve_tmp,patmos_preserve_ret));
+void _sc_free() __attribute__((naked,used,patmos_sc_func,patmos_preserve_ret));
 void _sc_free()
 {
 #if 1
-  int sc_top, m_top, n, s0;
+  int sc_top, m_top, n;
 
   asm volatile(
       "mov %0 = $r8;" // copy argument to n
       "mov %1 = $r19;" // copy st to sc_top
       "mov %2 = $r20;" // copy ss to m_top
-      "mfs %3 = $s0;"
-      : "=r" (n), "=r"(sc_top), "=r"(m_top), "=r"(s0) /* output regs */
+      : "=r" (n), "=r"(sc_top), "=r"(m_top) /* output regs */
       ::
       );
 
@@ -160,9 +146,8 @@ void _sc_free()
   asm volatile(
       "mov $r19 = %0;" // copy sc_top to st
       "mov $r20 = %1;" // copy m_top to ss
-      "mts $s0 = %2;"
       : /* no output regs */
-      : "r"(sc_top), "r"(m_top), "r"(s0) /* input regs */
+      : "r"(sc_top), "r"(m_top) /* input regs */
       : "$r19", "$r20" /* clobbered */
       );
 #endif
