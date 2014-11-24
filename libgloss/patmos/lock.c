@@ -32,21 +32,27 @@
  */
 
 int __patmos_lock_init(_LOCK_T *lock) {
-  _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
-  for (unsigned i = 0; i < sizeof(ll->entering)/sizeof(ll->entering[0]); i++) {
-    ll->entering[i] = 0;
-  }
-  for (unsigned i = 0; i < sizeof(ll->number)/sizeof(ll->number[0]); i++) {
-    ll->number[i] = 0;
+  const unsigned cnt = get_cpucnt();
+  if (cnt > 1) {
+    _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
+    for (unsigned i = 0; i < cnt; i++) {
+      ll->entering[i] = 0;
+    }
+    for (unsigned i = 0; i < cnt; i++) {
+      ll->number[i] = 0;
+    }
   }
   return 0;
 }
 
 int __patmos_lock_init_recursive(_LOCK_RECURSIVE_T *lock) {
-  __lock_init(lock->lock);
-  _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
-  ll->owner = -1;
-  ll->depth = 0;
+  const unsigned cnt = get_cpucnt();
+  if (cnt > 1) {
+    __lock_init(lock->lock);
+    _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
+    ll->owner = -1;
+    ll->depth = 0;
+  }
   return 0;
 }
 
@@ -55,13 +61,17 @@ int __patmos_lock_close(_LOCK_T *lock) {
 }
 
 int __patmos_lock_close_recursive(_LOCK_RECURSIVE_T *lock) {
-  __lock_close(lock->lock);
+  const unsigned cnt = get_cpucnt();
+  if (cnt > 1) {
+    __lock_close(lock->lock);
+  }
   return 0;
 }
 
 static unsigned max(_UNCACHED _LOCK_T *ll) {
+  const unsigned cnt = get_cpucnt();
   unsigned m = 0;
-  for (unsigned i = 0; i < sizeof(ll->number)/sizeof(ll->number[0]); i++) {
+  for (unsigned i = 0; i < cnt; i++) {
     unsigned n = ll->number[i];
     m = n > m ? n : m;
   }
@@ -69,64 +79,74 @@ static unsigned max(_UNCACHED _LOCK_T *ll) {
 }
 
 int __patmos_lock_acquire(_LOCK_T *lock) {
-  unsigned char id = get_cpuid();
-  _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
+  const unsigned cnt = get_cpucnt();
+  if (cnt > 1) {
 
-  ll->entering[id] = 1;
-  unsigned n = 1 + max(ll);
-  ll->number[id] = n;
-  ll->entering[id] = 0;
+    const unsigned char id = get_cpuid();
+    _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
 
-  for (unsigned j = 0; j < sizeof(ll->number)/sizeof(ll->number[0]); j++) {
-    while (ll->entering[j]) {
-      /* busy wait */
+    ll->entering[id] = 1;
+    unsigned n = 1 + max(ll);
+    ll->number[id] = n;
+    ll->entering[id] = 0;
+
+    for (unsigned j = 0; j < cnt; j++) {
+      while (ll->entering[j]) {
+        /* busy wait */
+      }
+      unsigned m = ll->number[j];
+      while ((m != 0) &&
+             ((m < n) || ((m == n) && (j < id)))) {
+        /* busy wait, only update m */
+        m = ll->number[j];
+      }
     }
-    unsigned m = ll->number[j];
-    while ((m != 0) &&
-           ((m < n) || ((m == n) && (j < id)))) {
-      /* busy wait, only update m */
-      m = ll->number[j];
-    }
+
+    // invalidate data cache to establish cache coherence
+    inval_dcache();
   }
-
-  // invalidate data cache to establish cache coherence
-  inval_dcache();
 
   return 0;
 }
 
 int __patmos_lock_release(_LOCK_T *lock) {
-  unsigned char id = get_cpuid();
-  _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
+  const unsigned cnt = get_cpucnt();
+  if (cnt > 1) {
+    const unsigned char id = get_cpuid();
+    _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
 
-  ll->number[id] = 0; // exit section
-
+    ll->number[id] = 0; // exit section
+  }
   return 0;
 }
 
 int __patmos_lock_acquire_recursive(_LOCK_RECURSIVE_T *lock) {
-  unsigned char id = get_cpuid();
-  _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
+  const unsigned cnt = get_cpucnt();
+  if (cnt > 1) {
+    const unsigned char id = get_cpuid();
+    _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
 
-  if (ll->owner != id || ll->depth == 0) {
-    __lock_acquire(lock->lock);
-    ll->owner = id;
+    if (ll->owner != id || ll->depth == 0) {
+      __lock_acquire(lock->lock);
+      ll->owner = id;
+    }
+
+    ll->depth++;
   }
-
-  ll->depth++;
-
   return 0;
 }
 
 int __patmos_lock_release_recursive(_LOCK_RECURSIVE_T *lock) {
-  _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
+  const unsigned cnt = get_cpucnt();
+  if (cnt > 1) {
+    _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
 
-  ll->depth--;
+    ll->depth--;
 
-  if (ll->depth == 0) {
-    ll->owner = -1; // reset owner to invalid ID
-    __lock_release(lock->lock);
+    if (ll->depth == 0) {
+      ll->owner = -1; // reset owner to invalid ID
+      __lock_release(lock->lock);
+    }
   }
-
   return 0;
 }
