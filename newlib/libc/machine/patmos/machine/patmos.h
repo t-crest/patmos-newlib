@@ -64,6 +64,15 @@ static inline unsigned int get_cpu_freq()
   return freq;
 }
 
+/**
+ * Get the number of CPUs.
+ */
+static inline unsigned int get_cpucnt()
+{
+  unsigned int cnt = *((_iodev_ptr_t)(&_cpuinfo_base+0x8));
+  return cnt;
+}
+
 
 /**
  * Base address of the exception unit.
