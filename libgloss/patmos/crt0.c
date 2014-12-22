@@ -98,9 +98,11 @@ void _start()
   // compute effective stack addresses (needed for CMPs)
   int stack_size =
     (unsigned)&_stack_cache_base - (unsigned)&_shadow_stack_base;
-  if (stack_size < 0) { // make sure to have a positive size
-    stack_size = -stack_size;
-  }
+
+  // workaround for -O0: avoid branch, perform abs(stack_size) via bit twiddling
+  int const mask = stack_size >> sizeof(int) * 8 - 1;
+  stack_size = (stack_size + mask) ^ mask;
+
   const unsigned shadow_stack_base =
     (unsigned)&_shadow_stack_base - 2*stack_size*id;
   const unsigned stack_cache_base =
