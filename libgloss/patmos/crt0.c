@@ -99,6 +99,7 @@ void _start()
   int stack_size =
     (unsigned)&_stack_cache_base - (unsigned)&_shadow_stack_base;
 
+  // make sure to have a positive stack size
   // workaround for -O0: avoid branch, perform abs(stack_size) via bit twiddling
   int const mask = stack_size >> sizeof(int) * 8 - 1;
   stack_size = (stack_size + mask) ^ mask;
