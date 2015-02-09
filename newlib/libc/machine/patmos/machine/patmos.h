@@ -87,6 +87,7 @@ extern char _excunit_base;
 /**
  * Invalidate the data cache.
  */
+static inline void inval_dcache() __attribute__((section(".text.spm")));
 static inline void inval_dcache()
 {
   CACHE_CONTROL = 0x01;
@@ -94,10 +95,44 @@ static inline void inval_dcache()
 
 /**
  * Invalidate the method cache.
+ *
+ * Requires that the .text.spm section is put into the I-SPM address range.
  */
+static inline void inval_mcache() __attribute__((section(".text.spm")));
 static inline void inval_mcache()
 {
   CACHE_CONTROL = 0x02;
+}
+
+/**
+ * Spill all data in the stack cache to memory.
+ *
+ * This relies on the fact that the call site will ensure its required stack
+ * size after this function returns.
+ */
+static void inval_scache() __attribute__((naked, section(".text.spm")));
+static void inval_scache()
+{
+  asm volatile (
+       "mfs $r1 = $ss;\n\t"
+       "mfs $r2 = $st;\n\t"
+       "sub $r1 = $r1, $r2\n\t"
+       "sspill $r1\n\t"
+       : : : "$r1", "$r2");
+}
+
+/**
+ * Clear all caches (M$, D$, S$).
+ *
+ * Requires that the .text.spm section is put into the I-SPM address range.
+ */
+static inline void inval_caches() __attribute__((section(".text.spm")));
+static inline void inval_caches()
+{
+  inval_scache();
+  // Clear the method cache (and data cache) last, in case inval_scache is not
+  // in the SPM.
+  CACHE_CONTROL = 0x01 | 0x02;
 }
 
 #endif /* _MACHPATMOS_H */
