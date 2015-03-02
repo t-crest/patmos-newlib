@@ -33,44 +33,50 @@ int _read(int file, char *buf, int len)
   if (file == STDIN_FILENO)
   {
     int i;
+    int seen_newline = 0;
 
     // read data
     for(i = 0; i < len; i++)
     {
       int s, c;
 
+      // return if nothing is available and we already have a full line
+      __PATMOS_UART_STATUS(s);
+      if ((s & (__PATMOS_UART_DAV | __PATMOS_UART_PAE)) == 0 && seen_newline)
+      {
+        break;
+      }
+
       // wait for data to be available from the UART
-      do
+      while ((s & (__PATMOS_UART_DAV | __PATMOS_UART_PAE)) == 0)
       {
         __PATMOS_UART_STATUS(s);
-      } while((s & (__PATMOS_UART_DAV | __PATMOS_UART_PAE)) == 0);
-
-      // reached EOF?
-      if ((s & __PATMOS_UART_PAE) == 0)
-      {
-        // read the data from the UART.
-        __PATMOS_UART_RD_DATA(c);
-
-        // copy data into the given buffer.
-        *buf++ = c & 0xff;
       }
-      else
-      {
-	// keep track of offset for lseek
-	__patmos_stdin_offset += i;
+      
+      // simulator signals EOF via parity error
+      if ((s & __PATMOS_UART_PAE) != 0) {
+        break;
+      }
 
-        // signal EOF
-        errno = 0;
-        return i;
+      // read the data from the UART.
+      __PATMOS_UART_RD_DATA(c);
+
+      // copy data into the given buffer.
+      *buf++ = c & 0xff;
+
+      // stdin is usually line buffered, so stop reading on newline
+      if (c == '\n')
+      {
+        seen_newline = 1;
       }
     }
 
     // keep track of offset for lseek
-    __patmos_stdin_offset += len;
+    __patmos_stdin_offset += i;
 
     // clear error code and return
     errno = 0;
-    return len;
+    return i;
   }
 
   // TODO: implement for simulator target
