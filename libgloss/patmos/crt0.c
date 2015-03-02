@@ -101,7 +101,7 @@ void _start()
 
   // make sure to have a positive stack size
   // workaround for -O0: avoid branch, perform abs(stack_size) via bit twiddling
-  int const mask = stack_size >> sizeof(int) * 8 - 1;
+  int const mask = stack_size >> (sizeof(int) * 8 - 1);
   stack_size = (stack_size + mask) ^ mask;
 
   const unsigned shadow_stack_base =
@@ -130,7 +130,7 @@ void _start()
  
   // register callback to fini
   atexit(&__fini);
-  
+
   // ---------------------------------------------------------------------------  
   // invoke main -- without command line options
   // we use asm to prevent LLVM from inlining into a naked function here
