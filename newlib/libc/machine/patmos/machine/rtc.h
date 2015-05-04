@@ -42,12 +42,18 @@ static inline unsigned long long get_cpu_cycles(void) {
 
   // TODO this code is identical to libgloss/patmos/time.c, share code.
 
+  // Prevent the compiler from moving the read over other instructions 
+  // or into a call delay slot behind the call miss stall
+  asm volatile ("" : : : "memory");
+
   _iodev_ptr_t hi_clock = (_iodev_ptr_t)(&_timer_base + 0x0);
   _iodev_ptr_t lo_clock = (_iodev_ptr_t)(&_timer_base + 0x4);
 
   // Order is important here
   clo = *lo_clock;
   chi = *hi_clock;
+
+  asm volatile ("" : : : "memory");
 
   return (((unsigned long long) chi) << 32) | clo;
 }
@@ -60,12 +66,18 @@ static inline unsigned long long get_cpu_usecs(void) {
 
   // TODO this code is identical to libgloss/patmos/time.c, share code.
 
+  // Prevent the compiler from moving the read over other instructions 
+  // or into a call delay slot behind the call miss stall
+  asm volatile ("" : : : "memory");
+
   _iodev_ptr_t hi_usec = (_iodev_ptr_t)(&_timer_base + 0x8);
   _iodev_ptr_t lo_usec = (_iodev_ptr_t)(&_timer_base + 0xc);
 
   // Order is important here
   ulo = *lo_usec;
   uhi = *hi_usec;
+
+  asm volatile ("" : : : "memory");
 
   return (((unsigned long long) uhi) << 32) | ulo;
 }
@@ -77,12 +89,18 @@ static inline unsigned long long get_cpu_usecs(void) {
 static inline void arm_clock_timer(unsigned long long timestamp) {
   unsigned clo, chi;
 
+  // Prevent the compiler from moving the write over other instructions 
+  // or into a call delay slot behind the call miss stall
+  asm volatile ("" : : : "memory");
+
   _iodev_ptr_t hi_clock = (_iodev_ptr_t)(&_timer_base + 0x0);
   _iodev_ptr_t lo_clock = (_iodev_ptr_t)(&_timer_base + 0x4);
 
   // Order is important here
   *lo_clock = (unsigned)timestamp;
   *hi_clock = (unsigned)(timestamp>>32);
+
+  asm volatile ("" : : : "memory");
 }
 
 /**
@@ -92,12 +110,18 @@ static inline void arm_clock_timer(unsigned long long timestamp) {
 static inline void arm_usec_timer(unsigned long long timestamp) {
   unsigned clo, chi;
 
+  // Prevent the compiler from moving the write over other instructions 
+  // or into a call delay slot behind the call miss stall
+  asm volatile ("" : : : "memory");
+
   _iodev_ptr_t hi_usec = (_iodev_ptr_t)(&_timer_base + 0x8);
   _iodev_ptr_t lo_usec = (_iodev_ptr_t)(&_timer_base + 0xc);
 
   // Order is important here
   *lo_usec = (unsigned)timestamp;
   *hi_usec = (unsigned)(timestamp>>32);
+
+  asm volatile ("" : : : "memory");
 }
 
 
