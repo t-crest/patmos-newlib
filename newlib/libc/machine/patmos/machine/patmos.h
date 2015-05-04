@@ -106,6 +106,24 @@ static inline void inval_mcache()
 }
 
 /**
+ * Invalidate the stack cache by resetting the spill pointer to the top-of-stack.
+ *
+ * TODO Test if this works in all cases and stack implementations.
+ *
+ * This relies on the fact that the call site will ensure (and thus fill back) 
+ * its required stack size from memory after this function returns.
+ */
+static void inval_scache() __attribute__((naked, section(".text.spm")));
+static void inval_scache()
+{
+  asm volatile (
+       "mfs $r1 = $st;\n\t"
+       "mts $ss = $r1;\n\t"
+       : : : "$r1");
+}
+
+
+/**
  * Spill all data in the stack cache to memory, emptying the stack cache.
  *
  * This relies on the fact that the call site will ensure (and thus fill back) 
@@ -121,6 +139,22 @@ static void flush_scache()
        "sspill $r1\n\t"
        : : : "$r1", "$r2");
 }
+
+/**
+ * Invalidate all caches.
+ *
+ * Requires that the .text.spm section is put into the I-SPM address range
+ * by the linker.
+ */
+static inline void inval_caches() __attribute__((section(".text.spm")));
+static inline void inval_caches()
+{
+  inval_scache();
+  // Clear the method cache (and data cache) last, in case flush_scache is not
+  // in the SPM.
+  CACHE_CONTROL = 0x01 | 0x02;
+}
+
 
 /**
  * Clear all caches, by flushing the S$ and invalidating the D$ and M$.
