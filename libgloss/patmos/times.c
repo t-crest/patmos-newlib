@@ -31,8 +31,8 @@ extern int  errno;
 static inline unsigned long long _clock(void) {
     unsigned clo, chi;
 
-    _iodev_ptr_t hi_clock = (_iodev_ptr_t)(&_timer_base + 0x0);
-    _iodev_ptr_t lo_clock = (_iodev_ptr_t)(&_timer_base + 0x4);
+    _iodev_ptr_t hi_clock = (_iodev_ptr_t)(__PATMOS_TIMER_BASE + 0x0);
+    _iodev_ptr_t lo_clock = (_iodev_ptr_t)(__PATMOS_TIMER_BASE + 0x4);
 
     // Order is important here
     clo = *lo_clock;
@@ -44,8 +44,8 @@ static inline unsigned long long _clock(void) {
 static inline unsigned long long _usecs(void) {
     unsigned ulo, uhi;
 
-    _iodev_ptr_t hi_usec = (_iodev_ptr_t)(&_timer_base + 0x8);
-    _iodev_ptr_t lo_usec = (_iodev_ptr_t)(&_timer_base + 0xc);
+    _iodev_ptr_t hi_usec = (_iodev_ptr_t)(__PATMOS_TIMER_BASE + 0x8);
+    _iodev_ptr_t lo_usec = (_iodev_ptr_t)(__PATMOS_TIMER_BASE + 0xc);
 
     // Order is important here
     ulo = *lo_usec;

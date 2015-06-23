@@ -23,9 +23,11 @@
 
 /**
  * Base address of the CPU info device.
- * Defined by patmos-clang driver as a symbol at link-time
  */
-extern char _cpuinfo_base;
+#define __PATMOS_CPUINFO_BASE     0xF0000000
+#define __PATMOS_CPUINFO_COREID   (__PATMOS_CPUINFO_BASE + 0x00)
+#define __PATMOS_CPUINFO_FREQ     (__PATMOS_CPUINFO_BASE + 0x04)
+#define __PATMOS_CPUINFO_CORECNT  (__PATMOS_CPUINFO_BASE + 0x08)
 
 /**
  * Attribute for pointers into the IO-mapped memory. Use as
@@ -51,7 +53,7 @@ typedef _IODEV unsigned int volatile * const _iodev_ptr_t;
  */
 static inline unsigned int get_cpuid()
 {
-  unsigned int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  unsigned int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
   return id;
 }
 
@@ -60,7 +62,7 @@ static inline unsigned int get_cpuid()
  */
 static inline unsigned int get_cpu_freq()
 {
-  unsigned int freq = *((_iodev_ptr_t)(&_cpuinfo_base+0x4));
+  unsigned int freq = *((_iodev_ptr_t)(__PATMOS_CPUINFO_FREQ));
   return freq;
 }
 
@@ -69,7 +71,7 @@ static inline unsigned int get_cpu_freq()
  */
 static inline unsigned int get_cpucnt()
 {
-  unsigned int cnt = *((_iodev_ptr_t)(&_cpuinfo_base+0x8));
+  unsigned int cnt = *((_iodev_ptr_t)(__PATMOS_CPUINFO_CORECNT));
   return cnt;
 }
 
@@ -77,12 +79,15 @@ static inline unsigned int get_cpucnt()
 /**
  * Base address of the exception unit.
  */
-extern char _excunit_base;
+#define __PATMOS_EXCUNIT_BASE       0xF0010000
+#define __PATMOS_EXCUNIT_CACHECTRL  (__PATMOS_EXCUNIT_BASE + 0x14)
+
 
 /**
  * The cache control register (in the exception unit).
+ * TODO This should have a PATMOS prefix, as this a header file
  */
-#define CACHE_CONTROL (*((_iodev_ptr_t)(&_excunit_base+0x14)))
+#define CACHE_CONTROL (*((_iodev_ptr_t)(__PATMOS_EXCUNIT_CACHECTRL)))
 
 /**
  * Invalidate the data cache.

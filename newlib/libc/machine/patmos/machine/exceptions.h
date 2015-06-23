@@ -28,21 +28,22 @@
 #include <machine/patmos.h>
 
 /// The base address of the exception handling unit.
+#define __PATMOS_EXCUNIT_BASE    0xF0010000
 extern char _excunit_base;
 
 /// The status register of the exception unit.
-#define EXC_STATUS (*((_iodev_ptr_t)(&_excunit_base+0x00)))
+#define EXC_STATUS (*((_iodev_ptr_t)(__PATMOS_EXCUNIT_BASE+0x00)))
 /// The interrupt mask register.
-#define EXC_MASK   (*((_iodev_ptr_t)(&_excunit_base+0x04)))
+#define EXC_MASK   (*((_iodev_ptr_t)(__PATMOS_EXCUNIT_BASE+0x04)))
 /// The pending interrupts register.
-#define EXC_PEND   (*((_iodev_ptr_t)(&_excunit_base+0x08)))
+#define EXC_PEND   (*((_iodev_ptr_t)(__PATMOS_EXCUNIT_BASE+0x08)))
 /// The exception source register.
-#define EXC_SOURCE (*((_iodev_ptr_t)(&_excunit_base+0x0c)))
+#define EXC_SOURCE (*((_iodev_ptr_t)(__PATMOS_EXCUNIT_BASE+0x0c)))
 
 /// The exception handler type.
 typedef void (*exc_handler_t)(void);
 /// The exception vector array.
-#define EXC_VEC(I) (((_IODEV exc_handler_t volatile * const)(&_excunit_base+0x80))[I])
+#define EXC_VEC(I) (((_IODEV exc_handler_t volatile * const)(__PATMOS_EXCUNIT_BASE+0x80))[I])
 
 /// Various named exception vector entry numbers
 #define EXC_ILLEGAL_OP       0

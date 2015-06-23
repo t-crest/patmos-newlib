@@ -82,7 +82,7 @@ void _start() __attribute__((naked,used));
 void _start()
 {
   // retrieve the id of the current core
-  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
 
   // ---------------------------------------------------------------------------
   // store return information of caller
@@ -166,7 +166,7 @@ void __fini(void) {
 
 /// __initreent - initialize reentrancy structure
 void __initreent(void) {
-  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
   _reent_ptr[id] = malloc(sizeof(struct _reent));
   _REENT_INIT_PTR(_reent_ptr[id]);
 }
@@ -174,6 +174,6 @@ void __initreent(void) {
 /// __getreent - get reentrancy structure for current thread
 struct _reent *__getreent(void)
 {
-  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
   return _reent_ptr[id];
 }

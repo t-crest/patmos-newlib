@@ -29,9 +29,12 @@
 
 /**
  * Base address of the RTC IO address range.
- * Defined by patmos-clang driver as a symbol at link-time
  */
-extern char _timer_base;
+#define __PATMOS_TIMER_BASE       0xF0020000
+#define __PATMOS_TIMER_HICLK      (__PATMOS_TIMER_BASE + 0x00)
+#define __PATMOS_TIMER_LOCLK      (__PATMOS_TIMER_BASE + 0x04)
+#define __PATMOS_TIMER_HIUSEC     (__PATMOS_TIMER_BASE + 0x08)
+#define __PATMOS_TIMER_LOUSEC     (__PATMOS_TIMER_BASE + 0x0c)
 
 
 /**
@@ -46,8 +49,8 @@ static inline unsigned long long get_cpu_cycles(void) {
   // or into a call delay slot behind the call miss stall
   asm volatile ("" : : : "memory");
 
-  _iodev_ptr_t hi_clock = (_iodev_ptr_t)(&_timer_base + 0x0);
-  _iodev_ptr_t lo_clock = (_iodev_ptr_t)(&_timer_base + 0x4);
+  _iodev_ptr_t hi_clock = (_iodev_ptr_t)(__PATMOS_TIMER_HICLK);
+  _iodev_ptr_t lo_clock = (_iodev_ptr_t)(__PATMOS_TIMER_LOCLK);
 
   // Order is important here
   clo = *lo_clock;
@@ -70,8 +73,8 @@ static inline unsigned long long get_cpu_usecs(void) {
   // or into a call delay slot behind the call miss stall
   asm volatile ("" : : : "memory");
 
-  _iodev_ptr_t hi_usec = (_iodev_ptr_t)(&_timer_base + 0x8);
-  _iodev_ptr_t lo_usec = (_iodev_ptr_t)(&_timer_base + 0xc);
+  _iodev_ptr_t hi_usec = (_iodev_ptr_t)(__PATMOS_TIMER_HIUSEC);
+  _iodev_ptr_t lo_usec = (_iodev_ptr_t)(__PATMOS_TIMER_LOUSEC);
 
   // Order is important here
   ulo = *lo_usec;
@@ -93,8 +96,8 @@ static inline void arm_clock_timer(unsigned long long timestamp) {
   // or into a call delay slot behind the call miss stall
   asm volatile ("" : : : "memory");
 
-  _iodev_ptr_t hi_clock = (_iodev_ptr_t)(&_timer_base + 0x0);
-  _iodev_ptr_t lo_clock = (_iodev_ptr_t)(&_timer_base + 0x4);
+  _iodev_ptr_t hi_clock = (_iodev_ptr_t)(__PATMOS_TIMER_HICLK);
+  _iodev_ptr_t lo_clock = (_iodev_ptr_t)(__PATMOS_TIMER_LOCLK);
 
   // Order is important here
   *lo_clock = (unsigned)timestamp;
@@ -114,8 +117,8 @@ static inline void arm_usec_timer(unsigned long long timestamp) {
   // or into a call delay slot behind the call miss stall
   asm volatile ("" : : : "memory");
 
-  _iodev_ptr_t hi_usec = (_iodev_ptr_t)(&_timer_base + 0x8);
-  _iodev_ptr_t lo_usec = (_iodev_ptr_t)(&_timer_base + 0xc);
+  _iodev_ptr_t hi_usec = (_iodev_ptr_t)(__PATMOS_TIMER_HIUSEC);
+  _iodev_ptr_t lo_usec = (_iodev_ptr_t)(__PATMOS_TIMER_LOUSEC);
 
   // Order is important here
   *lo_usec = (unsigned)timestamp;

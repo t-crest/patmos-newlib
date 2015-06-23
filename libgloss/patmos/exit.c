@@ -26,7 +26,7 @@ extern unsigned _loader_off [];
 void _exit(int status)
 {
   // retrieve the id of the current core
-  const int id = *((_iodev_ptr_t)(&_cpuinfo_base+0x0));
+  const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
 
   // return to loader; halts if baseaddr and off are 0
   asm volatile ("mts $srb = %0;"

@@ -24,14 +24,15 @@
 
 typedef _IODEV unsigned int volatile * const _iodev_ptr_t;
 
-/// linker symbol giving the base address of the cpuinfo device
-extern char _cpuinfo_base;
+/// The base address of the cpuinfo device
+#define __PATMOS_CPUINFO_BASE   0xF0000000
+#define __PATMOS_CPUINFO_COREID  (__PATMOS_CPUINFO_BASE + 0x00)
 
-/// linker symbol giving the base address of the timer device
-extern char _timer_base;
+/// The base address of the timer device
+#define __PATMOS_TIMER_BASE     0xF0020000
 
-/// linker symbol giving the address of the UART device
-extern char _uart_base;
+/// The address of the UART device
+#define __PATMOS_UART_BASE      0xF0080000
 
 /// Bit mask for the transmit-ready bit (TRE)
 #define __PATMOS_UART_TRE 1
@@ -43,10 +44,10 @@ extern char _uart_base;
 #define __PATMOS_UART_PAE 4
 
 /// Address to access the status register of the UART coming with Patmos
-#define __PATMOS_UART_STATUS_ADDR (&_uart_base+0x0)
+#define __PATMOS_UART_STATUS_ADDR (__PATMOS_UART_BASE+0x0)
 
 /// Address to access the data register of the UART coming with Patmos
-#define __PATMOS_UART_DATA_ADDR (&_uart_base+0x04)
+#define __PATMOS_UART_DATA_ADDR (__PATMOS_UART_BASE+0x04)
 
 /// Macro to read the UART's status register
 #define __PATMOS_UART_STATUS(res) res = *((_iodev_ptr_t)__PATMOS_UART_STATUS_ADDR);
