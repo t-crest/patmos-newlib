@@ -76,8 +76,12 @@ void __initreent(void) __attribute__((noinline));
 
 //******************************************************************************
 /// _start - main entry function to all patmos executables.
-/// Setup the stack frame, initialize data structures, invoke main, et cetera.
+/// Setup the stack frame and invoke __start.
 void _start() __attribute__((naked,used));
+
+/// __start - main entry function to all patmos executables.
+/// Initialize data structures, invoke main, et cetera.
+void __start() __attribute__((noinline));
 
 void _start()
 {
@@ -92,7 +96,7 @@ void _start()
                 "swm [%1] = $r29;"
                 : : "r" (&_loader_baseaddr[id]), "r" (&_loader_off[id]));
 
-  // ---------------------------------------------------------------------------  
+  // ---------------------------------------------------------------------------
   // setup stack frame and stack cache.
 
   // compute effective stack addresses (needed for CMPs)
@@ -109,13 +113,20 @@ void _start()
   const unsigned stack_cache_base =
     (unsigned)&_stack_cache_base - 2*stack_size*id;
 
-  // ---------------------------------------------------------------------------  
+  // ---------------------------------------------------------------------------
   // setup stack frame and stack cache.
   asm volatile ("mov $r31 = %0;" // initialize shadow stack pointer"
                 "mts $ss  = %1;" // initialize the stack cache's spill pointer"
                 "mts $st  = %1;" // initialize the stack cache's top pointer"
                  : : "r" (shadow_stack_base), "r" (stack_cache_base));
-                
+
+  // ---------------------------------------------------------------------------
+  // continue in __start
+  __start();
+}
+
+void __start()
+{
   // ---------------------------------------------------------------------------  
   // clear the BSS section
   // memset(&__bss_start, 0, &_end - &__bss_start);
@@ -127,7 +138,7 @@ void _start()
   // ---------------------------------------------------------------------------  
   // call initializers
   __init();
- 
+
   // register callback to fini
   atexit(&__fini);
 
@@ -135,15 +146,7 @@ void _start()
   // invoke main -- without command line options
   // we use asm to prevent LLVM from inlining into a naked function here
 
-  asm volatile ("call %0;"        // invoke main function
-                "li   $r3 = 0;"   // argc
-                "li   $r4 = 0;"   // argv
-                "nop  ;"
-                "call %1;"        // terminate program and invoke exit
-                "mov  $r3 = $r1;" // get exit code (in delay slot)
-                "nop  ;"
-                "nop  ;"
-                 : : "i" (&main), "i" (&exit));
+  exit(main(0, 0));
 
   // ---------------------------------------------------------------------------
   // in case this returns
