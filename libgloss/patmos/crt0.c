@@ -74,15 +74,13 @@ struct _reent *_reent_ptr [MAX_CORES];
 /// __initreent - initialize reentrancy structure
 void __initreent(void) __attribute__((noinline));
 
+// Forward declaration of __start for _start.
+void __start();
+
 //******************************************************************************
 /// _start - main entry function to all patmos executables.
 /// Setup the stack frame and invoke __start.
 void _start() __attribute__((naked,used));
-
-/// __start - main entry function to all patmos executables.
-/// Initialize data structures, invoke main, et cetera.
-void __start() __attribute__((noinline));
-
 void _start()
 {
   // retrieve the id of the current core
@@ -122,9 +120,26 @@ void _start()
 
   // ---------------------------------------------------------------------------
   // continue in __start
-  __start();
+
+  // We use asm to prevent LLVM from inlining into a naked function here.
+  // Calling (or actually any kind of more complex C code) is not supported by
+  // the compiler, since it does not manage the stack in naked functions. If it 
+  // spills registers at -O0, this can lead to stack corruption.
+  // It would work in this case since it is a non-returning tail call without
+  // arguments, but we really should be defensive in system code.
+  // If we need to analyse this code, we can easily extend the compiler and
+  // platin to support inline asm (and we should, anyway!).
+  asm volatile ("call %0;"        // resume in (no-return) __start function 
+                "nop  ;"
+                "nop  ;"
+                "nop  ;"
+                 : : "i" (&__start));
 }
 
+/// __start - Main driver for program setup and execution.
+/// Initialize data structures, invoke main, et cetera.
+/// TODO needs a better name to make it more distinguishable from _start.
+void __start() __attribute__((noinline));
 void __start()
 {
   // ---------------------------------------------------------------------------  
@@ -144,7 +159,6 @@ void __start()
 
   // ---------------------------------------------------------------------------  
   // invoke main -- without command line options
-  // we use asm to prevent LLVM from inlining into a naked function here
 
   exit(main(0, 0));
 
