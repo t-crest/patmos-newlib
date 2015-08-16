@@ -44,6 +44,7 @@ void __fini(void) __attribute__((noinline));
 //******************************************************************************
 
 /// main - main function.
+/// Note: LLVM currently silently ignores attributes for extern functions!
 extern int main(int argc, char **argv) __attribute__((noinline));
 
 /// memset - set memory content.
@@ -121,18 +122,20 @@ void _start()
   // ---------------------------------------------------------------------------
   // continue in __start
 
-  // We use asm to prevent LLVM from inlining into a naked function here.
+  // We use asm here to prevent LLVM from messing with the stack.
   // Calling (or actually any kind of more complex C code) is not supported by
   // the compiler, since it does not manage the stack in naked functions. If it 
   // spills registers at -O0, this can lead to stack corruption.
   // It would work in this case since it is a non-returning tail call without
-  // arguments, but we really should be defensive in system code.
+  // arguments, but we should rather be defensive in system code.
+  // If LLVM would inline the call, we could get code requiring spills into this
+  // function (but the noinline attribute prevents this anyway).
   // If we need to analyse this code, we can easily extend the compiler and
   // platin to support inline asm (and we should, anyway!).
-  asm volatile ("call %0;"        // resume in (no-return) __start function 
+  asm volatile ("call %0;"        // resume in the no-return __start function 
                 "nop  ;"
                 "nop  ;"
-                "nop  ;"
+                "nop  ;"	  // no need for a 'ret'
                  : : "i" (&__start));
 }
 
@@ -160,7 +163,21 @@ void __start()
   // ---------------------------------------------------------------------------  
   // invoke main -- without command line options
 
-  exit(main(0, 0));
+  // LLVM does not attach function attributes to declarations, we cannot mark
+  // main as noinline in this file. 
+  // Thus, we again use inline asm here for the call, but this time to prevent
+  // inlining *of main* to avoid breaking evaluation and debugging scripts.
+  // We also keep the call to exit while we are at it, to make debugging traces
+  // easier.
+  asm volatile ("call %0;"        // invoke main function
+                "li   $r3 = 0;"   // argc
+                "li   $r4 = 0;"   // argv
+                "nop  ;"
+                "call %1;"        // terminate program and invoke exit
+                "mov  $r3 = $r1;" // get exit code (in delay slot)
+                "nop  ;"
+                "nop  ;"
+                 : : "i" (&main), "i" (&exit));
 
   // ---------------------------------------------------------------------------
   // in case this returns
