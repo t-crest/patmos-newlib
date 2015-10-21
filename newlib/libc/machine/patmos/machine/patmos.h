@@ -24,10 +24,22 @@
 /**
  * Base address of the CPU info device.
  */
-#define __PATMOS_CPUINFO_BASE     0xF0000000
-#define __PATMOS_CPUINFO_COREID   (__PATMOS_CPUINFO_BASE + 0x00)
-#define __PATMOS_CPUINFO_FREQ     (__PATMOS_CPUINFO_BASE + 0x04)
-#define __PATMOS_CPUINFO_CORECNT  (__PATMOS_CPUINFO_BASE + 0x08)
+#define __PATMOS_CPUINFO_BASE         0xF0000000
+#define __PATMOS_CPUINFO_COREID       (__PATMOS_CPUINFO_BASE + 0x00)
+#define __PATMOS_CPUINFO_FREQ         (__PATMOS_CPUINFO_BASE + 0x04)
+#define __PATMOS_CPUINFO_CORECNT      (__PATMOS_CPUINFO_BASE + 0x08)
+#define __PATMOS_CPUINFO_FEATURES     (__PATMOS_CPUINFO_BASE + 0x0C)
+#define __PATMOS_CPUINFO_EXTMEM_SIZE  (__PATMOS_CPUINFO_BASE + 0x10)
+#define __PATMOS_CPUINFO_EXTMEM_CONF  (__PATMOS_CPUINFO_BASE + 0x14)
+#define __PATMOS_CPUINFO_ICACHE_SIZE  (__PATMOS_CPUINFO_BASE + 0x18)
+#define __PATMOS_CPUINFO_ICACHE_CONF  (__PATMOS_CPUINFO_BASE + 0x1C)
+#define __PATMOS_CPUINFO_DCACHE_SIZE  (__PATMOS_CPUINFO_BASE + 0x20)
+#define __PATMOS_CPUINFO_DCACHE_CONF  (__PATMOS_CPUINFO_BASE + 0x24)
+#define __PATMOS_CPUINFO_SCACHE_SIZE  (__PATMOS_CPUINFO_BASE + 0x28)
+#define __PATMOS_CPUINFO_SCACHE_CONF  (__PATMOS_CPUINFO_BASE + 0x2C)
+#define __PATMOS_CPUINFO_ISPM_SIZE    (__PATMOS_CPUINFO_BASE + 0x30)
+#define __PATMOS_CPUINFO_DSPM_SIZE    (__PATMOS_CPUINFO_BASE + 0x34)
+#define __PATMOS_CPUINFO_BOOTSPM_SIZE (__PATMOS_CPUINFO_BASE + 0x38)
 
 /**
  * Attribute for pointers into the IO-mapped memory. Use as
@@ -74,6 +86,115 @@ static inline unsigned int get_cpucnt()
   unsigned int cnt = *((_iodev_ptr_t)(__PATMOS_CPUINFO_CORECNT));
   return cnt;
 }
+
+/**
+ * Get the cpu specific features.
+ */
+static inline unsigned int get_cpufeat()
+{
+  unsigned int feat = *((_iodev_ptr_t)(__PATMOS_CPUINFO_FEATURES));
+  return feat;
+}
+
+/**
+ * Get the size of the external memory.
+ */
+static inline unsigned int get_extmem_size()
+{
+  unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_EXTMEM_SIZE));
+  return size;
+}
+
+/**
+ * Get the configuration of the external memory.
+ */
+static inline unsigned int get_extmem_conf()
+{
+  unsigned int conf = *((_iodev_ptr_t)(__PATMOS_CPUINFO_EXTMEM_CONF));
+  return conf;
+}
+
+/**
+ * Get the size of the instruction cache.
+ */
+static inline unsigned int get_icache_size()
+{
+  unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_ICACHE_SIZE));
+  return size;
+}
+
+/**
+ * Get the configuration of the instruction cache.
+ */
+static inline unsigned int get_icache_conf()
+{
+  unsigned int conf = *((_iodev_ptr_t)(__PATMOS_CPUINFO_ICACHE_CONF));
+  return conf;
+}
+
+/**
+ * Get the size of the data cache.
+ */
+static inline unsigned int get_dcache_size()
+{
+  unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_DCACHE_SIZE));
+  return size;
+}
+
+/**
+ * Get the configuration of the data cache.
+ */
+static inline unsigned int get_dcache_conf()
+{
+  unsigned int conf = *((_iodev_ptr_t)(__PATMOS_CPUINFO_DCACHE_CONF));
+  return conf;
+}
+
+/**
+ * Get the size of the stack cache.
+ */
+static inline unsigned int get_scache_size()
+{
+  unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_SCACHE_SIZE));
+  return size;
+}
+
+/**
+ * Get the configuration of the stack cache.
+ */
+static inline unsigned int get_scache_conf()
+{
+  unsigned int conf = *((_iodev_ptr_t)(__PATMOS_CPUINFO_SCACHE_CONF));
+  return conf;
+}
+
+/**
+ * Get the size of the instruction SPM.
+ */
+static inline unsigned int get_ispm_size()
+{
+  unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_ISPM_SIZE));
+  return size;
+}
+
+/**
+ * Get the size of the data SPM.
+ */
+static inline unsigned int get_dspm_size()
+{
+  unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_DSPM_SIZE));
+  return size;
+}
+
+/**
+ * Get the size of the boot SPM.
+ */
+static inline unsigned int get_bootspm_size()
+{
+  unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_BOOTSPM_SIZE));
+  return size;
+}
+
 
 
 /**
