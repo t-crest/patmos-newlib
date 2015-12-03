@@ -29,7 +29,6 @@
 
 /// The base address of the exception handling unit.
 #define __PATMOS_EXCUNIT_BASE    0xF0010000
-extern char _excunit_base;
 
 /// The status register of the exception unit.
 #define EXC_STATUS (*((_iodev_ptr_t)(__PATMOS_EXCUNIT_BASE+0x00)))

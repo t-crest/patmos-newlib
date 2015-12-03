@@ -28,6 +28,14 @@ typedef _IODEV unsigned int volatile * const _iodev_ptr_t;
 #define __PATMOS_CPUINFO_BASE   0xF0000000
 #define __PATMOS_CPUINFO_COREID  (__PATMOS_CPUINFO_BASE + 0x00)
 
+/// The base address of the exception unit
+#define __PATMOS_EXCUNIT_BASE   0xF0010000
+#define __PATMOS_EXCUNIT_SRC    (__PATMOS_EXCUNIT_BASE + 0x0c)
+#define __PATMOS_EXCUNIT_VEC    (__PATMOS_EXCUNIT_BASE + 0x80)
+
+/// The exception handler type.
+typedef void (*exc_handler_t)(void);
+
 /// The base address of the timer device
 #define __PATMOS_TIMER_BASE     0xF0020000
 

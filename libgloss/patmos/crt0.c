@@ -17,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <reent.h>
 
 #include "patmos.h"
@@ -74,6 +75,12 @@ unsigned _loader_off[MAX_CORES];
 struct _reent *_reent_ptr [MAX_CORES];
 /// __initreent - initialize reentrancy structure
 void __initreent(void) __attribute__((noinline));
+
+
+/// __init_exceptions - install default exception handlers
+void  __init_exceptions(void);
+/// __default_exc_handler - a default exception handler
+void __default_exc_handler(void);
 
 // Forward declaration of __start for _start.
 void __start();
@@ -154,6 +161,10 @@ void __start()
   __initreent();
 
   // ---------------------------------------------------------------------------  
+  // install basic exception handlers
+  __init_exceptions();
+
+  // ---------------------------------------------------------------------------  
   // call initializers
   __init();
 
@@ -210,4 +221,32 @@ struct _reent *__getreent(void)
 {
   const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
   return _reent_ptr[id];
+}
+
+/// __init_exceptions - install default exception handlers
+void  __init_exceptions(void) {
+  int i;
+  for (i = 0; i < 32; i++) {
+    *((_IODEV exc_handler_t *)(__PATMOS_EXCUNIT_VEC + 4*i)) = &__default_exc_handler;
+  }
+}
+
+/// __default_exc_handler - a default exception handler
+void __default_exc_handler(void) {
+  unsigned source = *((_iodev_ptr_t)(__PATMOS_EXCUNIT_SRC));
+
+  unsigned base, off;
+  asm volatile("mfs %0 = $sxb;"
+               "mfs %1 = $sxo;"
+               : "=r" (base), "=r" (off));
+
+  const char *msg = "";
+  switch(source) {
+  case 0: msg = " (illegal operation)"; break;
+  case 1: msg = " (illegal memory access)"; break;
+  }
+
+  printf("Aborting: exception %d%s at %#010x\n", source, msg, base+off);
+
+  abort();
 }
