@@ -39,7 +39,6 @@
 #define __PATMOS_CPUINFO_SCACHE_CONF  (__PATMOS_CPUINFO_BASE + 0x2C)
 #define __PATMOS_CPUINFO_ISPM_SIZE    (__PATMOS_CPUINFO_BASE + 0x30)
 #define __PATMOS_CPUINFO_DSPM_SIZE    (__PATMOS_CPUINFO_BASE + 0x34)
-#define __PATMOS_CPUINFO_BOOTSPM_SIZE (__PATMOS_CPUINFO_BASE + 0x38)
 
 /**
  * Attribute for pointers into the IO-mapped memory. Use as
@@ -183,15 +182,6 @@ static inline unsigned int get_ispm_size()
 static inline unsigned int get_dspm_size()
 {
   unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_DSPM_SIZE));
-  return size;
-}
-
-/**
- * Get the size of the boot SPM.
- */
-static inline unsigned int get_bootspm_size()
-{
-  unsigned int size = *((_iodev_ptr_t)(__PATMOS_CPUINFO_BOOTSPM_SIZE));
   return size;
 }
 
