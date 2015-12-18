@@ -46,6 +46,7 @@ static	float	one	= 1.0, tiny=1.0e-30;
     /* normalize x */
 	m = (ix>>23);
 	if(FLT_UWORD_IS_SUBNORMAL(hx)) {		/* subnormal x */
+	    _Pragma("loopbound min 0 max 23")
 	    for(i=0;(ix&0x00800000L)==0;i++) ix<<=1;
 	    m -= i-1;
 	}
@@ -60,6 +61,7 @@ static	float	one	= 1.0, tiny=1.0e-30;
 	q = s = 0;		/* q = sqrt(x) */
 	r = 0x01000000L;		/* r = moving bit from right to left */
 
+	_Pragma("loopbound min 25 max 25")
 	while(r!=0) {
 	    t = s+r; 
 	    if(t<=ix) { 
