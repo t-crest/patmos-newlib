@@ -143,7 +143,7 @@ void _start()
                 "nop  ;"
                 "nop  ;"
                 "nop  ;"	  // no need for a 'ret'
-                 : : "i" (&__start));
+                 : : "r" (&__start));
 }
 
 /// __start - Main driver for program setup and execution.
@@ -188,7 +188,10 @@ void __start()
                 "mov  $r3 = $r1;" // get exit code (in delay slot)
                 "nop  ;"
                 "nop  ;"
-                 : : "i" (&main), "i" (&exit));
+                : : "r" (&main), "r" (&exit)
+                : "$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8",
+                  "$r9", "$r10", "$r11", "$r12", "$r13", "$r14", "$r15", "$r16",
+                  "$r17", "$r18", "$r19", "$r20");
 
   // ---------------------------------------------------------------------------
   // in case this returns
