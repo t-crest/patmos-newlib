@@ -229,8 +229,11 @@ struct _reent *__getreent(void)
 /// __init_exceptions - install default exception handlers
 void  __init_exceptions(void) {
   int i;
-  for (i = 0; i < 32; i++) {
-    *((_IODEV exc_handler_t *)(__PATMOS_EXCUNIT_VEC + 4*i)) = &__default_exc_handler;
+  // only install handlers if in privileged mode
+  if (*((_iodev_ptr_t)(__PATMOS_EXCUNIT_STATUS)) & 0x2) {
+    for (i = 0; i < 32; i++) {
+      *((_IODEV exc_handler_t *)(__PATMOS_EXCUNIT_VEC + 4*i)) = &__default_exc_handler;
+    }
   }
 }
 

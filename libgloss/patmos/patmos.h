@@ -30,6 +30,7 @@ typedef _IODEV unsigned int volatile * const _iodev_ptr_t;
 
 /// The base address of the exception unit
 #define __PATMOS_EXCUNIT_BASE   0xF0010000
+#define __PATMOS_EXCUNIT_STATUS (__PATMOS_EXCUNIT_BASE + 0x00)
 #define __PATMOS_EXCUNIT_SRC    (__PATMOS_EXCUNIT_BASE + 0x0c)
 #define __PATMOS_EXCUNIT_VEC    (__PATMOS_EXCUNIT_BASE + 0x80)
 
