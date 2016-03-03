@@ -44,6 +44,10 @@ void __fini(void) __attribute__((noinline));
 
 //******************************************************************************
 
+void __corethread_worker(void) __attribute__((noinline));
+
+//******************************************************************************
+
 /// main - main function.
 /// Note: LLVM currently silently ignores attributes for extern functions!
 extern int main(int argc, char **argv) __attribute__((noinline));
@@ -171,8 +175,12 @@ void __start()
   // register callback to fini
   atexit(&__fini);
 
-  // ---------------------------------------------------------------------------  
-  // invoke main -- without command line options
+  // retrieve the id of the current core
+  const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
+  if (id == 0) {
+      
+    // ---------------------------------------------------------------------------  
+    // invoke main -- without command line options
 
   // LLVM does not attach function attributes to declarations, we cannot mark
   // main as noinline in this file. 
@@ -180,18 +188,33 @@ void __start()
   // inlining *of main* to avoid breaking evaluation and debugging scripts.
   // We also keep the call to exit while we are at it, to make debugging traces
   // easier.
-  asm volatile ("call %0;"        // invoke main function
-                "li   $r3 = 0;"   // argc
-                "li   $r4 = 0;"   // argv
-                "nop  ;"
-                "call %1;"        // terminate program and invoke exit
-                "mov  $r3 = $r1;" // get exit code (in delay slot)
-                "nop  ;"
-                "nop  ;"
-                : : "r" (&main), "r" (&exit)
-                : "$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8",
-                  "$r9", "$r10", "$r11", "$r12", "$r13", "$r14", "$r15", "$r16",
-                  "$r17", "$r18", "$r19", "$r20");
+    asm volatile ("call %0;"        // invoke main function
+                  "li   $r3 = 0;"   // argc
+                  "li   $r4 = 0;"   // argv
+                  "nop  ;"
+                  "call %1;"        // terminate program and invoke exit
+                  "mov  $r3 = $r1;" // get exit code (in delay slot)
+                  "nop  ;"
+                  "nop  ;"
+                  : : "r" (&main), "r" (&exit)
+                  : "$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8",
+                    "$r9", "$r10", "$r11", "$r12", "$r13", "$r14", "$r15", "$r16",
+                    "$r17", "$r18", "$r19", "$r20");
+  } else {    
+    asm volatile ("call %0;"        // invoke __corethread_worker function
+                  "nop;"
+                  "nop;"
+                  "nop  ;"
+                  "call %1;"        // terminate program and invoke exit
+                  "mov  $r3 = $r1;" // get exit code (in delay slot)
+                  "nop  ;"
+                  "nop  ;"
+                   : : "r" (&__corethread_worker), "r" (&exit)
+                  : "$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8",
+                    "$r9", "$r10", "$r11", "$r12", "$r13", "$r14", "$r15", "$r16",
+                    "$r17", "$r18", "$r19", "$r20");
+
+  }
 
   // ---------------------------------------------------------------------------
   // in case this returns
@@ -255,4 +278,33 @@ void __default_exc_handler(void) {
   printf("Aborting: exception %d%s at %#010x\n", source, msg, base+off);
 
   abort();
+}
+
+void __corethread_worker(void) {
+  const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
+  unsigned long long time;
+  boot_info->slave[id].status = STATUS_RETURN;
+    
+  // Wait for corethread_create request or application exit
+  while(boot_info->master.status != STATUS_RETURN) {
+    // As long as the master is still executing, wait for a corethread to
+    // be created and then execute it.
+    if (boot_info->slave[id].funcpoint != NULL) {
+      funcpoint_t funcpoint = boot_info->slave[id].funcpoint;
+      boot_info->slave[id].return_val = -1;
+      boot_info->slave[id].status = STATUS_INITDONE;
+      (*funcpoint)((void*)boot_info->slave[id].param);
+      boot_info->slave[id].status = STATUS_RETURN;
+      while(boot_info->slave[id].funcpoint != NULL) {
+
+      }
+    }
+    boot_info->slave[id].status = STATUS_RETURN;
+    time = get_cpu_usecs();
+    //while(get_cpu_usecs() < time+10) {
+    //  // Wait for 10 micro seconds before checking again
+    //}
+  }
+  boot_info->slave[id].status = STATUS_RETURN;
+  return;
 }
