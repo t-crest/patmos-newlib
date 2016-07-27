@@ -275,9 +275,14 @@ void __default_exc_handler(void) {
   case 1: msg = " (illegal memory access)"; break;
   }
 
-  printf("Aborting: exception %d%s at %#010x\n", source, msg, base+off);
+  const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
+  // Use printf only if the cpu is the master
+  if(id == 0){
+    printf("Aborting: exception %d%s at %#010x\n", source, msg, base+off);
+    abort();
+  }
+  
 
-  abort();
 }
 
 void __corethread_worker(void) {
