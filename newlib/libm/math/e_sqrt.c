@@ -119,10 +119,12 @@ static	double	one	= 1.0, tiny=1.0e-300;
     /* normalize x */
 	m = (ix0>>20);
 	if(m==0) {				/* subnormal x */
+	    _Pragma("loopbound min 0 max 2")
 	    while(ix0==0) {
 		m -= 21;
 		ix0 |= (ix1>>11); ix1 <<= 21;
 	    }
+	    _Pragma("loopbound min 0 max 20")
 	    for(i=0;(ix0&0x00100000)==0;i++) ix0<<=1;
 	    m -= i-1;
 	    ix0 |= (ix1>>(32-i));
@@ -141,7 +143,7 @@ static	double	one	= 1.0, tiny=1.0e-300;
 	ix1 += ix1;
 	q = q1 = s0 = s1 = 0;	/* [q,q1] = sqrt(x) */
 	r = 0x00200000;		/* r = moving bit from right to left */
-
+	_Pragma("loopbound min 22 max 22")
 	while(r!=0) {
 	    t = s0+r; 
 	    if(t<=ix0) { 
@@ -155,6 +157,7 @@ static	double	one	= 1.0, tiny=1.0e-300;
 	}
 
 	r = sign;
+        _Pragma("loopbound min 32 max 32")
 	while(r!=0) {
 	    t1 = s1+r; 
 	    t  = s0;
