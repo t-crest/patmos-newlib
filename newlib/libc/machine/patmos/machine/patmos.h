@@ -41,6 +41,22 @@
 #define __PATMOS_CPUINFO_DSPM_SIZE    (__PATMOS_CPUINFO_BASE + 0x34)
 
 /**
+ * Base addresses of IO devices.
+ * Should only be defined here and used from the include file.
+ * TODO: remove hard coded constants from C files.
+ */
+
+#define PATMOS_IO_CPUINFO  0xf0000000
+#define PATMOS_IO_EXCUNIT  0xf0010000
+#define PATMOS_IO_TIMER    0xf0020000
+#define PATMOS_IO_DEADLINE 0xf0030000
+#define PATMOS_IO_UART     0xf0080000
+#define PATMOS_IO_LED      0xf0090000
+#define PATMOS_IO_KEYS     0xf00a0000
+#define PATMOS_IO_AUDIO    0xf00c0000
+#define PATMOS_IO_ETHERNET 0xf00d0000
+
+/**
  * Attribute for pointers into the IO-mapped memory. Use as
  *
  * _IODEV int *p = (_IODEV int *) 0x1234;
