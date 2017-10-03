@@ -81,8 +81,6 @@ char *__env[1] = {0};
 /// environ - values of environment vairables.
 char **environ = __env;
 
-/// MAX_CORES - the maximum number of cores
-#define MAX_CORES 64
 /// _loader_baseaddr - the base address of the loading function (one per core)
 unsigned _loader_baseaddr[MAX_CORES];
 /// _loader_off - the offset of the loading function (one per core)
