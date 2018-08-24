@@ -57,6 +57,22 @@
 #define PATMOS_IO_ETHERNET 0xf00d0000
 
 /**
+ * Base addresses of cmp IO devices.
+ * Should only be defined here and used from the include file.
+ */
+
+#define PATMOS_IO_ARGO      0xe8000000
+#define PATMOS_IO_HARDLOCK  0xe8010000
+#define PATMOS_IO_SPM       0xe8020000
+#define PATMOS_IO_ONEWAYMEM 0xe8030000
+#define PATMOS_IO_SPM2      0xe8040000
+#define PATMOS_IO_OWNSPM    0xe8050000
+#define PATMOS_IO_SPMPOOL   0xe8060000
+#define PATMOS_IO_S4NOC     0xe8070000
+#define PATMOS_IO_CASPM     0xe8080000
+#define PATMOS_IO_ASYNCLOCK 0xe8090000
+
+/**
  * Attribute for pointers into the IO-mapped memory. Use as
  *
  * _IODEV int *p = (_IODEV int *) 0x1234;
