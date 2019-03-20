@@ -50,11 +50,16 @@
 #define PATMOS_IO_EXCUNIT  0xf0010000
 #define PATMOS_IO_TIMER    0xf0020000
 #define PATMOS_IO_DEADLINE 0xf0030000
+#define PATMOS_IO_GPIO     0xf0040000
+#define PATMOS_IO_SEGDISP  0xf0050000
+#define PATMOS_IO_UART2    0xf0060000
+#define PATMOS_IO_UART3    0xf0070000
 #define PATMOS_IO_UART     0xf0080000
 #define PATMOS_IO_LED      0xf0090000
 #define PATMOS_IO_KEYS     0xf00a0000
 #define PATMOS_IO_AUDIO    0xf00c0000
-#define PATMOS_IO_ETHERNET 0xf00d0000
+#define PATMOS_IO_ETH      0xf00d0000
+#define PATMOS_IO_ETH1     0xf00e0000
 
 /**
  * Base addresses of cmp IO devices.
