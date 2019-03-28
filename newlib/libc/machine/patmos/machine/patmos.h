@@ -43,9 +43,10 @@
 /**
  * Base addresses of IO devices.
  * Should only be defined here and used from the include file.
- * TODO: remove hard coded constants from C files.
+ * TODO: Organize address space, maybe this should be generated otherwise
+ * changes here should match definitions of config.xml
  */
-
+ 
 #define PATMOS_IO_CPUINFO  0xf0000000
 #define PATMOS_IO_EXCUNIT  0xf0010000
 #define PATMOS_IO_TIMER    0xf0020000
@@ -57,10 +58,13 @@
 #define PATMOS_IO_UART     0xf0080000
 #define PATMOS_IO_LED      0xf0090000
 #define PATMOS_IO_KEYS     0xf00a0000
+#define PATMOS_IO_I2C      0xf00b0000
+#define PATMOS_IO_ACT      0xf00c0000
 #define PATMOS_IO_AUDIO    0xf00c0000
 #define PATMOS_IO_ETH      0xf00d0000
 #define PATMOS_IO_ETH1     0xf00e0000
-
+#define PATMOS_IO_SD       0xf00f0000
+#define PATMOS_IO_SSPM     0xf00f0000
 /**
  * Base addresses of cmp IO devices.
  * Should only be defined here and used from the include file.
@@ -76,6 +80,7 @@
 #define PATMOS_IO_S4NOC     0xe8070000
 #define PATMOS_IO_CASPM     0xe8080000
 #define PATMOS_IO_ASYNCLOCK 0xe8090000
+#define PATMOS_IO_LEDSCMP   0xe80d0000
 
 /**
  * Attribute for pointers into the IO-mapped memory. Use as
