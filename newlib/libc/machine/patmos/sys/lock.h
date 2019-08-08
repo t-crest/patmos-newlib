@@ -20,29 +20,22 @@
 
 #ifndef __rtems__
 
-#ifndef MAX_CORES
-#define MAX_CORES 64
-#endif
-
-/* Locking structure to match Lamport's bakery locks */
 typedef struct {
-  volatile unsigned char entering [MAX_CORES];
-  volatile unsigned int number [MAX_CORES];
+  volatile int owner;
 } _LOCK_T;
 
 typedef struct {
   _LOCK_T lock;
-  volatile unsigned char owner;
-  volatile unsigned int depth;
+  volatile int depth;
 } _LOCK_RECURSIVE_T;
  
 
-#define __EMPTY_LOCK { { 0 }, { 0 } }
+#define __EMPTY_LOCK { -1 }
 
 #define __LOCK_INIT(class,lock) \
   class _LOCK_T lock = __EMPTY_LOCK;
 #define __LOCK_INIT_RECURSIVE(class,lock) \
-  class _LOCK_RECURSIVE_T lock = { __EMPTY_LOCK, -1, 0 };
+  class _LOCK_RECURSIVE_T lock = { __EMPTY_LOCK, 0 };
 
 
 #define __lock_init(lock)                  __patmos_lock_init(&(lock))
