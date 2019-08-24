@@ -49,7 +49,9 @@ int __patmos_lock_init(_LOCK_T *lock) {
   const int cnt = get_cpucnt();
   if (cnt > 1) {
     _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
-    ll->owner = -1;
+    ll->owner = __EMPTY_LOCK;
+    ll->ticket_req = 0;
+    ll->ticket_cur = 0;
   }
   return 0;
 }
@@ -83,16 +85,16 @@ int __patmos_lock_acquire(_LOCK_T *lock) {
 
     if(ll->owner == id)
       return 0;
-    
-    while(1) {
-      _HARDLOCK_LOCK();
-      if(ll->owner == -1) {
-        ll->owner = id;
-        _HARDLOCK_UNLOCK();
+
+    _HARDLOCK_LOCK();
+    int ticket = ll->ticket_req++;
+    _HARDLOCK_UNLOCK();
+
+    while(1)
+      if(ticket == ll->ticket_cur)
         break;
-      }
-      _HARDLOCK_UNLOCK();
-    }
+
+    ll->owner = id;
 
     // invalidate data cache to establish cache coherence
     inval_dcache();
@@ -106,7 +108,8 @@ int __patmos_lock_release(_LOCK_T *lock) {
     const int id = get_cpuid();
     _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
 
-    ll->owner = -1;
+    ll->owner = __EMPTY_LOCK;
+    ll->ticket_cur++;
   }
   return 0;
 }
