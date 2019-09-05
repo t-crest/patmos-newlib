@@ -31,13 +31,13 @@ typedef struct {
   volatile int depth;
 } _LOCK_RECURSIVE_T;
  
-
-#define __EMPTY_LOCK { -1 }
+#define __EMPTY_LOCK -1
+#define ___EMPTY_LOCK { __EMPTY_LOCK }
 
 #define __LOCK_INIT(class,lock) \
-  class _LOCK_T lock = __EMPTY_LOCK;
+  class _LOCK_T lock = ___EMPTY_LOCK;
 #define __LOCK_INIT_RECURSIVE(class,lock) \
-  class _LOCK_RECURSIVE_T lock = { __EMPTY_LOCK, 0, 0, 0 };
+  class _LOCK_RECURSIVE_T lock = { ___EMPTY_LOCK, 0, 0, 0 };
 
 
 #define __lock_init(lock)                  __patmos_lock_init(&(lock))
