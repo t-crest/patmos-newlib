@@ -32,37 +32,35 @@
 
 #include <machine/patmos.h>
 
-/* This locking implementation uses Lamport's baker algorithm.
- *
- * Rationale: It is faster than Peterson's generalized algorithm for N
- * threads. Lamport's "fast" algorithm would be much faster for
- * uncontended locks, but is not starvation-free.
- *
- * Caveat: The "number" field in the locking structure may be
- * unbounded if a lock is continuously acquired/released without ever
- * being free.
+/* This locking implementation uses a single global hardware lock when
+   when modifying the lock structures.
  */
+ 
+// Assumes that the Hardlock is connected with at least 1 lock, used as a global lock
+
+#ifndef _HARDLOCK_LOCK
+#define _HARDLOCK_LOCK() do {asm volatile ("" : : : "memory"); *((_iodev_ptr_t) PATMOS_IO_HARDLOCK) = 1; asm volatile ("" : : : "memory");} while(0)
+#endif
+#ifndef _HARDLOCK_UNLOCK
+#define _HARDLOCK_UNLOCK() do {asm volatile ("" : : : "memory"); *((_iodev_ptr_t) PATMOS_IO_HARDLOCK) = 0; asm volatile ("" : : : "memory");} while(0)
+#endif
 
 int __patmos_lock_init(_LOCK_T *lock) {
-  const unsigned cnt = get_cpucnt();
+  const int cnt = get_cpucnt();
   if (cnt > 1) {
     _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
-    for (unsigned i = 0; i < cnt; i++) {
-      ll->entering[i] = 0;
-    }
-    for (unsigned i = 0; i < cnt; i++) {
-      ll->number[i] = 0;
-    }
+    ll->owner = __EMPTY_LOCK;
+    ll->ticket_req = 0;
+    ll->ticket_cur = 0;
   }
   return 0;
 }
 
 int __patmos_lock_init_recursive(_LOCK_RECURSIVE_T *lock) {
-  const unsigned cnt = get_cpucnt();
+  const int cnt = get_cpucnt();
   if (cnt > 1) {
     __lock_init(lock->lock);
     _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
-    ll->owner = -1;
     ll->depth = 0;
   }
   return 0;
@@ -73,75 +71,57 @@ int __patmos_lock_close(_LOCK_T *lock) {
 }
 
 int __patmos_lock_close_recursive(_LOCK_RECURSIVE_T *lock) {
-  const unsigned cnt = get_cpucnt();
-  if (cnt > 1) {
+  const int cnt = get_cpucnt();
+  if (cnt > 1)
     __lock_close(lock->lock);
-  }
   return 0;
 }
 
-static unsigned max(_UNCACHED _LOCK_T *ll) {
-  const unsigned cnt = get_cpucnt();
-  unsigned m = 0;
-  for (unsigned i = 0; i < cnt; i++) {
-    unsigned n = ll->number[i];
-    m = n > m ? n : m;
-  }
-  return m;
-}
-
 int __patmos_lock_acquire(_LOCK_T *lock) {
-  const unsigned cnt = get_cpucnt();
+  const int cnt = get_cpucnt();
   if (cnt > 1) {
-
-    const unsigned char id = get_cpuid();
+    const int id = get_cpuid();
     _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
 
-    ll->entering[id] = 1;
-    unsigned n = 1 + max(ll);
-    ll->number[id] = n;
-    ll->entering[id] = 0;
+    if(ll->owner == id)
+      return 0;
 
-    for (unsigned j = 0; j < cnt; j++) {
-      while (ll->entering[j]) {
-        /* busy wait */
-      }
-      unsigned m = ll->number[j];
-      while ((m != 0) &&
-             ((m < n) || ((m == n) && (j < id)))) {
-        /* busy wait, only update m */
-        m = ll->number[j];
-      }
-    }
+    _HARDLOCK_LOCK();
+    int ticket = ll->ticket_req++;
+    _HARDLOCK_UNLOCK();
+
+    while(1)
+      if(ticket == ll->ticket_cur)
+        break;
+
+    ll->owner = id;
 
     // invalidate data cache to establish cache coherence
     inval_dcache();
   }
-
   return 0;
 }
 
 int __patmos_lock_release(_LOCK_T *lock) {
-  const unsigned cnt = get_cpucnt();
+  const int cnt = get_cpucnt();
   if (cnt > 1) {
-    const unsigned char id = get_cpuid();
+    const int id = get_cpuid();
     _UNCACHED _LOCK_T *ll = (_UNCACHED _LOCK_T *)lock;
 
-    ll->number[id] = 0; // exit section
+    ll->owner = __EMPTY_LOCK;
+    ll->ticket_cur++;
   }
   return 0;
 }
 
 int __patmos_lock_acquire_recursive(_LOCK_RECURSIVE_T *lock) {
-  const unsigned cnt = get_cpucnt();
+  const int cnt = get_cpucnt();
   if (cnt > 1) {
-    const unsigned char id = get_cpuid();
+    const int id = get_cpuid();
     _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
 
-    if (ll->owner != id || ll->depth == 0) {
-      __lock_acquire(lock->lock);
-      ll->owner = id;
-    }
+    if (ll->lock.owner != id)
+      return __lock_acquire(lock->lock);
 
     ll->depth++;
   }
@@ -149,16 +129,14 @@ int __patmos_lock_acquire_recursive(_LOCK_RECURSIVE_T *lock) {
 }
 
 int __patmos_lock_release_recursive(_LOCK_RECURSIVE_T *lock) {
-  const unsigned cnt = get_cpucnt();
+  const int cnt = get_cpucnt();
   if (cnt > 1) {
     _UNCACHED _LOCK_RECURSIVE_T *ll = (_UNCACHED _LOCK_RECURSIVE_T *)lock;
 
-    ll->depth--;
+    if (ll->depth == 0)
+      return __lock_release(lock->lock);
 
-    if (ll->depth == 0) {
-      ll->owner = -1; // reset owner to invalid ID
-      __lock_release(lock->lock);
-    }
+    ll->depth--;
   }
   return 0;
 }
