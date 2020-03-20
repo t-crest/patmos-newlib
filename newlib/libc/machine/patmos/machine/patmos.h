@@ -70,7 +70,7 @@
  * Should only be defined here and used from the include file.
  */
 
-#define PATMOS_IO_ARGO      0xe8000000
+#define PATMOS_IO_ARGO      0xe0000000
 #define PATMOS_IO_HARDLOCK  0xe8010000
 #define PATMOS_IO_SPM       0xe8020000
 #define PATMOS_IO_ONEWAYMEM 0xe8030000
