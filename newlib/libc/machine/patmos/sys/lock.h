@@ -20,25 +20,15 @@
 
 #ifndef __rtems__
 
-typedef struct {
-  volatile int owner;
-  volatile int ticket_req;
-  volatile int ticket_cur;
-} _LOCK_T;
+#include <pthread_mutex.h>
 
-typedef struct {
-  _LOCK_T lock;
-  volatile int depth;
-} _LOCK_RECURSIVE_T;
- 
-#define __EMPTY_LOCK -1
-#define ___EMPTY_LOCK { __EMPTY_LOCK }
+typedef pthread_mutex_t _LOCK_T;
+typedef pthread_mutex_t _LOCK_RECURSIVE_T;
 
 #define __LOCK_INIT(class,lock) \
-  class _LOCK_T lock = ___EMPTY_LOCK;
+  class _LOCK_T lock = PTHREAD_MUTEX_NORMAL_INITIALIZER;
 #define __LOCK_INIT_RECURSIVE(class,lock) \
-  class _LOCK_RECURSIVE_T lock = { ___EMPTY_LOCK, 0, 0, 0 };
-
+  class _LOCK_RECURSIVE_T lock = PTHREAD_MUTEX_RECURSIVE_INITIALIZER;
 
 #define __lock_init(lock)                  __patmos_lock_init(&(lock))
 #define __lock_init_recursive(lock)        __patmos_lock_init_recursive(&(lock))
@@ -50,7 +40,6 @@ typedef struct {
 #define __lock_try_acquire_recursive(lock) __patmos_lock_try_acquire_recursive(&(lock))
 #define __lock_release(lock)               __patmos_lock_release(&(lock))
 #define __lock_release_recursive(lock)     __patmos_lock_release_recursive(&(lock))
-
 
 extern int __patmos_lock_init(_LOCK_T *lock);
 extern int __patmos_lock_init_recursive(_LOCK_RECURSIVE_T *lock);

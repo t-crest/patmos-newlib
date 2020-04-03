@@ -69,7 +69,8 @@ SIM_BSP		= libpatmos.a
 SIM_CRTS	= crt0.o crtbegin.o crtend.o
 SIM_OBJS	= open.o close.o read.o write.o lseek.o link.o unlink.o fstat.o\
 		  getpid.o exec.o fork.o wait.o kill.o exit.o sbrk.o\
-		  times.o ftruncate.o stat.o chown.o chmod.o lock.o
+		  times.o ftruncate.o stat.o chown.o chmod.o lock.o\
+		  pthread.o pthread_mutex.o pthread_cond.o
 SIM_INSTALL	= install-sim
 
 # Host specific makefile fragment comes in here.
