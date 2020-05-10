@@ -8,7 +8,6 @@
 #define _PTHREAD_COND_H_
 
 #include <pthread_mutex.h>
-
 #include <time.h>
 
 typedef struct
@@ -31,7 +30,7 @@ typedef struct
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
  */
 
-#define PTHREAD_COND_INITIALIZER  ((pthread_cond_t) {0, 0, 0, 0, PTHREAD_MUTEX_INITIALIZER, {0}})
+#define PTHREAD_COND_INITIALIZER  ((pthread_cond_t) {0, 0, 0, 0, PTHREAD_MUTEX_INITIALIZER, {CLOCK_REALTIME}})
 
 int pthread_cond_broadcast(pthread_cond_t *cond);
 int pthread_cond_signal(pthread_cond_t *cond);

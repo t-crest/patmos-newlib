@@ -18,8 +18,6 @@
 #ifndef __SYS_LOCK_H__
 #define __SYS_LOCK_H__
 
-#ifndef __rtems__
-
 #include <pthread_mutex.h>
 
 typedef pthread_mutex_t _LOCK_T;
@@ -30,51 +28,16 @@ typedef pthread_mutex_t _LOCK_RECURSIVE_T;
 #define __LOCK_INIT_RECURSIVE(class,lock) \
   class _LOCK_RECURSIVE_T lock = PTHREAD_MUTEX_RECURSIVE_INITIALIZER;
 
-#define __lock_init(lock)                  __patmos_lock_init(&(lock))
-#define __lock_init_recursive(lock)        __patmos_lock_init_recursive(&(lock))
-#define __lock_close(lock)                 __patmos_lock_close(&(lock))
-#define __lock_close_recursive(lock)       __patmos_lock_close_recursive(&(lock))
-#define __lock_acquire(lock)               __patmos_lock_acquire(&(lock))
-#define __lock_acquire_recursive(lock)     __patmos_lock_acquire_recursive(&(lock))
-#define __lock_try_acquire(lock)           __patmos_lock_try_acquire(&(lock))
-#define __lock_try_acquire_recursive(lock) __patmos_lock_try_acquire_recursive(&(lock))
-#define __lock_release(lock)               __patmos_lock_release(&(lock))
-#define __lock_release_recursive(lock)     __patmos_lock_release_recursive(&(lock))
-
-extern int __patmos_lock_init(_LOCK_T *lock);
-extern int __patmos_lock_init_recursive(_LOCK_RECURSIVE_T *lock);
-extern int __patmos_lock_close(_LOCK_T *lock);
-extern int __patmos_lock_close_recursive(_LOCK_RECURSIVE_T *lock);
-extern int __patmos_lock_acquire(_LOCK_T *lock);
-extern int __patmos_lock_acquire_recursive(_LOCK_RECURSIVE_T *lock);
-extern int __patmos_lock_try_acquire(_LOCK_T *lock);
-extern int __patmos_lock_try_acquire_recursive(_LOCK_RECURSIVE_T *lock);
-extern int __patmos_lock_release(_LOCK_T *lock);
-extern int __patmos_lock_release_recursive(_LOCK_RECURSIVE_T *lock);
-
-#else /* __rtems__ */
-
-/* TODO: these are just dummies, replace with actual RTEMS locking functions */
-
-typedef int _LOCK_T;
-typedef int _LOCK_RECURSIVE_T;
- 
-#include <_ansi.h>
-
-#define __LOCK_INIT(class,lock) static int lock = 0;
-#define __LOCK_INIT_RECURSIVE(class,lock) static int lock = 0;
-#define __lock_init(lock) (_CAST_VOID 0)
-#define __lock_init_recursive(lock) (_CAST_VOID 0)
-#define __lock_close(lock) (_CAST_VOID 0)
-#define __lock_close_recursive(lock) (_CAST_VOID 0)
-#define __lock_acquire(lock) (_CAST_VOID 0)
-#define __lock_acquire_recursive(lock) (_CAST_VOID 0)
-#define __lock_try_acquire(lock) (_CAST_VOID 0)
-#define __lock_try_acquire_recursive(lock) (_CAST_VOID 0)
-#define __lock_release(lock) (_CAST_VOID 0)
-#define __lock_release_recursive(lock) (_CAST_VOID 0)
-
-#endif
+#define __lock_init(lock)                  pthread_mutex_init(&(lock), PTHREAD_MUTEX_NORMAL)
+#define __lock_init_recursive(lock)        pthread_mutex_init(&(lock), PTHREAD_MUTEX_RECURSIVE)
+#define __lock_close(lock)                 pthread_mutex_destroy(&(lock))
+#define __lock_close_recursive(lock)       pthread_mutex_destroy(&(lock))
+#define __lock_acquire(lock)               pthread_mutex_lock(&(lock))
+#define __lock_acquire_recursive(lock)     pthread_mutex_lock(&(lock))
+#define __lock_try_acquire(lock)           pthread_mutex_trylock(&(lock))
+#define __lock_try_acquire_recursive(lock) pthread_mutex_trylock(&(lock))
+#define __lock_release(lock)               pthread_mutex_unlock(&(lock))
+#define __lock_release_recursive(lock)     pthread_mutex_unlock(&(lock))
 
 #endif /* __SYS_LOCK_H__ */
 

@@ -80,15 +80,18 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr) 
   _UNCACHED pthread_mutex_t *_mutex = (_UNCACHED pthread_mutex_t *)mutex;
   _UNCACHED pthread_mutexattr_t * _attr = (_UNCACHED pthread_mutexattr_t *)attr;
 
-  int type = _attr->type;
+  int type = PTHREAD_MUTEX_DEFAULT;
 
-  switch(type) {
-  case PTHREAD_MUTEX_NORMAL:
-  case PTHREAD_MUTEX_ERRORCHECK:
-  case PTHREAD_MUTEX_RECURSIVE:
-    break;
-  default:
-    return EINVAL;
+  if(_attr != NULL) {
+    type = _attr->type;
+    switch(type) {
+      case PTHREAD_MUTEX_NORMAL:
+      case PTHREAD_MUTEX_ERRORCHECK:
+      case PTHREAD_MUTEX_RECURSIVE:
+        break;
+      default:
+        return EINVAL;
+    }
   }
 
   _mutex->owner = _PTHREAD_MUTEX_NOOWNER;
