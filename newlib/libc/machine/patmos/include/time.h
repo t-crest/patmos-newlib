@@ -5,11 +5,20 @@
  */
 
 #ifndef _TIME_H_
-#define _TIME_H_
+#define _TIME_H_ 1
 
 #include <sys/types.h>
 
+/* Get _CLOCKS_PER_SEC_ */
+#include <machine/time.h>
+#define CLOCKS_PER_SEC _CLOCKS_PER_SEC_
+
 #define CLOCK_REALTIME (clockid_t)1
+#define CLOCK_PROCESS_CPUTIME_ID (clockid_t)2
+#define CLOCK_THREAD_CPUTIME_ID (clockid_t)3
+#define CLOCK_MONOTONIC (clockid_t)4
+
+#define TIMER_ABSTIME 4
 
 struct tm
 {

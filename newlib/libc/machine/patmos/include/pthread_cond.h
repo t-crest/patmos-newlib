@@ -5,7 +5,7 @@
  */
 
 #ifndef _PTHREAD_COND_H_
-#define _PTHREAD_COND_H_
+#define _PTHREAD_COND_H_ 1
 
 #include <pthread_mutex.h>
 #include <time.h>

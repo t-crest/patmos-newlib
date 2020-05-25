@@ -5,7 +5,7 @@
  */
 
 #ifndef _PTHREAD_MUTEX_H_
-#define _PTHREAD_MUTEX_H_
+#define _PTHREAD_MUTEX_H_ 1
 
 typedef struct {
   volatile int owner;
