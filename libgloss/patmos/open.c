@@ -29,15 +29,22 @@
 //   policies, either expressed or implied, of the copyright holder.
     
 #include <errno.h>
+#include <stdarg.h>
 
 #undef errno
 extern int  errno;
 
 //******************************************************************************
 /// _open - open a file.
-int _open(const char *name, int flags, int mode)
+int _open(const char *name, int flags, ...)
 {
+  va_list args;
+  va_start(args, flags);
+  // TODO: access mode as first vararg (possibly)
   // TODO: implement for simulator target
+
   errno  = ENOSYS;
+  
+  va_end(args);
   return -1;
 }
