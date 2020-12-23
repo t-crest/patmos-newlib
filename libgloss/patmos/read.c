@@ -39,6 +39,17 @@ extern int  errno;
 extern int  __patmos_stdin_offset;
 
 //******************************************************************************
+/// patmos-plug: read: stub called if 'patmosplug_read(int, char *, int)' is not
+/// defined.
+int _patmosplug_read(int file, char *buf, int len) {
+  errno = EBADF;
+  return -1;
+}
+
+int patmosplug_read(int file, char *buf, int len)
+    __attribute__((weak, alias("_patmosplug_read")));
+
+//******************************************************************************
 /// _read - read a file descriptor.
 int _read(int file, char *buf, int len)
 {
@@ -93,6 +104,5 @@ int _read(int file, char *buf, int len)
   }
 
   // TODO: implement for simulator target
-  errno = EBADF;
-  return -1;
+  return patmosplug_read(file, buf, len);
 }
