@@ -35,6 +35,16 @@
 #undef errno
 extern int  errno;
 
+//******************************************************************************
+/// patmos-plug: write: stub called if 'patmosplug_write(int, char *, int)' is
+/// not defined.
+int _patmosplug_write(int file, char *buf, int nbytes) {
+  errno = EBADF;
+  return -1;
+}
+
+int patmosplug_write(int file, char *buf, int nbytes)
+    __attribute__((weak, alias("_patmosplug_write")));
 
 //******************************************************************************
 /// _write - write to a file descriptor.
@@ -73,6 +83,5 @@ int _write(int file, char *buf, int nbytes)
   }
 
   // TODO: implement for simulator target
-  errno  = EBADF;
-  return -1;
+  return patmosplug_write(file, buf, nbytes);
 }
