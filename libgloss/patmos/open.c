@@ -35,16 +35,29 @@
 extern int  errno;
 
 //******************************************************************************
+/// patmos-plug: open: stub called if 'patmosplug_open(const char *, int, int)'
+/// is not defined.
+int _patmosplug_open(const char *name, int flags, int mode) {
+  errno = ENOSYS;
+  return -1;
+}
+
+int patmosplug_open(const char *name, int flags, int mode)
+    __attribute__((weak, alias("_patmosplug_open")));
+
+//******************************************************************************
 /// _open - open a file.
 int _open(const char *name, int flags, ...)
 {
   va_list args;
+  int mode, errorcode;
   va_start(args, flags);
-  // TODO: access mode as first vararg (possibly)
-  // TODO: implement for simulator target
 
-  errno  = ENOSYS;
+  mode = va_arg(args, int);
   
+  /* execute patmos-plugin implementation */
+  errorcode = patmosplug_open(name, flags, mode);
+
   va_end(args);
-  return -1;
+  return errorcode;
 }
