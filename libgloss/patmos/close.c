@@ -34,10 +34,19 @@
 extern int  errno;
 
 //******************************************************************************
+/// patmos-plug: close: stub called if 'patmosplug_close(int)' is not defined.
+int _patmosplug_close(int file) {
+  errno = EBADF;
+  return -1;
+}
+
+int patmosplug_close(int file)
+    __attribute__((weak, alias("_patmosplug_close")));
+
+//******************************************************************************
 /// _close - close a file descriptor.
 int _close(int file)
 {
   // TODO: implement for simulator target
-  errno  = EBADF;
-  return -1;
+  return patmosplug_close(file);
 }
