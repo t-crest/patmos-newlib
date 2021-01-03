@@ -41,7 +41,9 @@ int _patmosplug_close(int file) {
   errno = EBADF;
   return -1;
 }
-
+/// patmosplug_clone: Alternative, patmos-specific `_close` implementation that can be provided
+/// at program link time.
+/// If not provided, will default to calling `_patmosplug_close`.
 int patmosplug_close(int file)
     __attribute__((weak, alias("_patmosplug_close")));
 
