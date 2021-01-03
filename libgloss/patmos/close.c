@@ -34,7 +34,9 @@
 extern int  errno;
 
 //******************************************************************************
-/// patmos-plug: close: stub called if 'patmosplug_close(int)' is not defined.
+/// patmos-plug: close: Implements the default `_close` implementation used when no specific 
+/// implementation is provided at link time.
+///  It is called if 'patmosplug_close(int)' is not defined.
 int _patmosplug_close(int file) {
   errno = EBADF;
   return -1;
