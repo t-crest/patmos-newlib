@@ -34,15 +34,16 @@
 extern int  errno;
 
 //******************************************************************************
-/// patmos-plug: close: Implements the default `_close` implementation used when no specific 
-/// implementation is provided at link time.
-///  It is called if 'patmosplug_close(int)' is not defined.
+/// patmos-plug: close: Implements the default `_close` implementation used when
+/// no specific implementation is provided at link time.
+/// Called if `patmosplug_close(int)` is not defined.
 int _patmosplug_close(int file) {
+  // TODO: implement for simulator target
   errno = EBADF;
   return -1;
 }
-/// patmosplug_clone: Alternative, patmos-specific `_close` implementation that can be provided
-/// at program link time.
+/// patmosplug_close: Alternative, patmos-specific `_close` implementation that
+/// can be provided at program link time.
 /// If not provided, will default to calling `_patmosplug_close`.
 int patmosplug_close(int file)
     __attribute__((weak, alias("_patmosplug_close")));
@@ -51,6 +52,5 @@ int patmosplug_close(int file)
 /// _close - close a file descriptor.
 int _close(int file)
 {
-  // TODO: implement for simulator target
   return patmosplug_close(file);
 }

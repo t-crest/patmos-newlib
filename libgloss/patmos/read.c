@@ -39,13 +39,18 @@ extern int  errno;
 extern int  __patmos_stdin_offset;
 
 //******************************************************************************
-/// patmos-plug: read: stub called if 'patmosplug_read(int, char *, int)' is not
-/// defined.
+/// patmos-plug: read: Implements the default `_read` implementation used when
+/// no specific implementation is provided at link time.
+/// Called if `patmosplug_read(int)` is not defined.
 int _patmosplug_read(int file, char *buf, int len) {
+  // TODO: implement for simulator target
   errno = EBADF;
   return -1;
 }
 
+/// patmosplug_read: Alternative, patmos-specific `_read` implementation that
+/// can be provided at program link time.
+/// If not provided, will default to calling `_patmosplug_read`.
 int patmosplug_read(int file, char *buf, int len)
     __attribute__((weak, alias("_patmosplug_read")));
 
@@ -103,6 +108,5 @@ int _read(int file, char *buf, int len)
     return i;
   }
 
-  // TODO: implement for simulator target
   return patmosplug_read(file, buf, len);
 }

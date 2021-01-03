@@ -36,13 +36,18 @@
 extern int  errno;
 
 //******************************************************************************
-/// patmos-plug: write: stub called if 'patmosplug_write(int, char *, int)' is
-/// not defined.
+/// patmos-plug: close: Implements the default `_write` implementation used when
+/// no specific implementation is provided at link time.
+/// Called if `patmosplug_write(int, char *, int)` is not defined.
 int _patmosplug_write(int file, char *buf, int nbytes) {
+  // TODO: implement for simulator target
   errno = EBADF;
   return -1;
 }
 
+/// patmosplug_write: Alternative, patmos-specific `_write` implementation that
+/// can be provided at program link time.
+/// If not provided, will default to calling `_patmosplug_write`.
 int patmosplug_write(int file, char *buf, int nbytes)
     __attribute__((weak, alias("_patmosplug_write")));
 
@@ -82,6 +87,5 @@ int _write(int file, char *buf, int nbytes)
     return nbytes;
   }
 
-  // TODO: implement for simulator target
   return patmosplug_write(file, buf, nbytes);
 }
