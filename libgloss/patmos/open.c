@@ -29,15 +29,42 @@
 //   policies, either expressed or implied, of the copyright holder.
     
 #include <errno.h>
+#include <stdarg.h>
 
 #undef errno
 extern int  errno;
 
 //******************************************************************************
-/// _open - open a file.
-int _open(const char *name, int flags, int mode)
-{
-  // TODO: implement for simulator target
-  errno  = ENOSYS;
+/// patmos-plug: open: Implements the default `_open` implementation used when
+/// no specific implementation is provided at link time.
+/// Called if `patmosplug_open(const char *, int, int)` is not defined.
+int _patmosplug_open(const char *name, int flags, int mode) {
+  errno = ENOSYS;
   return -1;
+}
+
+/// patmosplug_open: Alternative, patmos-specific `_open` implementation that
+/// can be provided at program link time.
+/// If not provided, will default to calling `_patmosplug_open`.
+int patmosplug_open(const char *name, int flags, int mode)
+    __attribute__((weak, alias("_patmosplug_open")));
+
+//******************************************************************************
+/// _open - open a file.
+/// 24-12-2020: Changed to varargs, as newlibc will be compiled expecting a
+/// platform specific `_open` function with varargs.
+/// See `newlib/libc/include/sys/_default_fcntl.h`
+int _open(const char *name, int flags, ...)
+{
+  va_list args;
+  int mode, errorcode;
+  va_start(args, flags);
+
+  mode = va_arg(args, int);
+  
+  /* execute patmos-plugin implementation */
+  errorcode = patmosplug_open(name, flags, mode);
+
+  va_end(args);
+  return errorcode;
 }
