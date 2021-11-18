@@ -561,7 +561,7 @@ PACKAGE_STRING='newlib 1.20.0'
 PACKAGE_BUGREPORT=''
 PACKAGE_URL=''
 
-ac_unique_file="setjmp.c"
+ac_unique_file="setjmp.ll"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 sys_dir

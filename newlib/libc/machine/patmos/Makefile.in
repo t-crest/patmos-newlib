@@ -171,7 +171,7 @@ AUTOMAKE_OPTIONS = cygnus
 INCLUDES = $(NEWLIB_CFLAGS) $(CROSS_CFLAGS) $(TARGET_CFLAGS)
 AM_CCASFLAGS = $(INCLUDES)
 noinst_LIBRARIES = lib.a
-lib_a_SOURCES = setjmp.c spm.c
+lib_a_SOURCES = setjmp.ll spm.c
 lib_a_CCASFLAGS = $(AM_CCASFLAGS)
 lib_a_CFLAGS = $(AM_CFLAGS)
 ACLOCAL_AMFLAGS = -I ../../.. -I ../../../..
@@ -234,11 +234,11 @@ distclean-compile:
 .c.obj:
 	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
-lib_a-setjmp.o: setjmp.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-setjmp.o `test -f 'setjmp.c' || echo '$(srcdir)/'`setjmp.c
+lib_a-setjmp.o: setjmp.ll
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-setjmp.o `test -f 'setjmp.ll' || echo '$(srcdir)/'`setjmp.ll
 
-lib_a-setjmp.obj: setjmp.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-setjmp.obj `if test -f 'setjmp.c'; then $(CYGPATH_W) 'setjmp.c'; else $(CYGPATH_W) '$(srcdir)/setjmp.c'; fi`
+lib_a-setjmp.obj: setjmp.ll
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-setjmp.obj `if test -f 'setjmp.ll'; then $(CYGPATH_W) 'setjmp.ll'; else $(CYGPATH_W) '$(srcdir)/setjmp.ll'; fi`
 
 lib_a-spm.o: spm.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-spm.o `test -f 'spm.c' || echo '$(srcdir)/'`spm.c

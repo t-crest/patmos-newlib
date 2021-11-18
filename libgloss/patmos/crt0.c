@@ -106,59 +106,70 @@ void __start();
 void _start() __attribute__((naked,used));
 void _start()
 {
-  // retrieve the id of the current core
-  const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
 
-  // ---------------------------------------------------------------------------
-  // store return information of caller
-  asm volatile ("mfs $r29 = $srb;"
-                "swm [%0] = $r29;"
-                "mfs $r29 = $sro;"
-                "swm [%1] = $r29;"
-                : : "r" (&_loader_baseaddr[id]), "r" (&_loader_off[id]));
+  asm volatile (
+    // ---------------------------------------------------------------------------
+    // Retrieve the id of the current core.
+    "li $r1 = %[core_id];"
+    "lwl $r1 = [$r1];"	// r1 = id
+    // ---------------------------------------------------------------------------
+    // setup stack frame and stack cache.
+    "li $r2 = _stack_cache_base;"
+    "li $r3 = _shadow_stack_base;"
+    // compute effective stack addresses (needed for CMPs)
+    "sub $r4 = $r2, $r3;" // stack size
 
-  // ---------------------------------------------------------------------------
-  // setup stack frame and stack cache.
+    // make sure to have a positive stack size
+    // workaround for -O0: avoid branch, perform abs(stack_size) via bit twiddling
+    "sra $r5 = $r4, 31;" // mask
+    "add $r4 = $r4, $r5;" // stack_size + mask
+    "xor $r4 = $r4, $r5;" // stack_size = (stack_size + mask) ^ mask
 
-  // compute effective stack addresses (needed for CMPs)
-  int stack_size =
-    (unsigned)&_stack_cache_base - (unsigned)&_shadow_stack_base;
+    "mul $r1, $r4;"
+    "nop;"
+    "mfs $r4 = $sl;"
+    "sl $r4 = $r4, 1;" // r4 = 2*stack_size*id
 
-  // make sure to have a positive stack size
-  // workaround for -O0: avoid branch, perform abs(stack_size) via bit twiddling
-  int const mask = stack_size >> (sizeof(int) * 8 - 1);
-  stack_size = (stack_size + mask) ^ mask;
+    "sub $r5 = $r3, $r4;" // = shadow_stack_base = &_shadow_stack_base - 2*stack_size*id
+    "sub $r6 = $r2, $r4;" // = stack_cache_base = &_stack_cache_base - 2*stack_size*id
 
-  const unsigned shadow_stack_base =
-    (unsigned)&_shadow_stack_base - 2*stack_size*id;
-  const unsigned stack_cache_base =
-    (unsigned)&_stack_cache_base - 2*stack_size*id;
+    "mov $r31 = $r5;" // initialize shadow stack pointer
+    "mts $ss  = $r6;" // initialize the stack cache's spill pointer
+    "mts $st  = $r6;" // initialize the stack cache's top pointer
 
-  // ---------------------------------------------------------------------------
-  // setup stack frame and stack cache.
-  asm volatile ("mov $r31 = %0;" // initialize shadow stack pointer"
-                "mts $ss  = %1;" // initialize the stack cache's spill pointer"
-                "mts $st  = %1;" // initialize the stack cache's top pointer"
-                 : : "r" (shadow_stack_base), "r" (stack_cache_base));
+    // ---------------------------------------------------------------------------
+    // store return information of caller
+    "li $r2 = _loader_baseaddr;"
+    "li $r3 = _loader_off;"
+    "shadd2 $r2 = $r2, $r1;" // r2 = &_loader_baseaddr[id]
+    "shadd2 $r3 = $r3, $r1;" // r3 = &_loader_off[id]
+    "mfs $r29 = $srb;"
+    "swm [$r2] = $r29;"
+    "mfs $r29 = $sro;"
+    "swm [$r3] = $r29;"
 
-  // ---------------------------------------------------------------------------
-  // continue in __start
+    // ---------------------------------------------------------------------------
+    // continue in __start
 
-  // We use asm here to prevent LLVM from messing with the stack.
-  // Calling (or actually any kind of more complex C code) is not supported by
-  // the compiler, since it does not manage the stack in naked functions. If it 
-  // spills registers at -O0, this can lead to stack corruption.
-  // It would work in this case since it is a non-returning tail call without
-  // arguments, but we should rather be defensive in system code.
-  // If LLVM would inline the call, we could get code requiring spills into this
-  // function (but the noinline attribute prevents this anyway).
-  // If we need to analyse this code, we can easily extend the compiler and
-  // platin to support inline asm (and we should, anyway!).
-  asm volatile ("call %0;"        // resume in the no-return __start function 
-                "nop  ;"
-                "nop  ;"
-                "nop  ;"	  // no need for a 'ret'
-                 : : "r" (&__start));
+    // We use asm here to prevent LLVM from messing with the stack.
+    // Calling (or actually any kind of more complex C code) is not supported by
+    // the compiler, since it does not manage the stack in naked functions. If it 
+    // spills registers at -O0, this can lead to stack corruption.
+    // It would work in this case since it is a non-returning tail call without
+    // arguments, but we should rather be defensive in system code.
+    // If LLVM would inline the call, we could get code requiring spills into this
+    // function (but the noinline attribute prevents this anyway).
+    // If we need to analyse this code, we can easily extend the compiler and
+    // platin to support inline asm (and we should, anyway!).
+    "li $r1 = %[next_fn];"
+    "call $r1;"	// resume in the no-return __start function 
+    "nop  ;"
+    "nop  ;"
+    "nop  ;"	// no need for a 'ret'
+    :
+    : [core_id] "i" (__PATMOS_CPUINFO_COREID), [next_fn] "i" (__start)
+    : "$r1", "$r2", "$r3", "$r4", "$r5", "$r6"
+  );
 }
 
 /// __start - Main driver for program setup and execution.
