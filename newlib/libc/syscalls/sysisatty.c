@@ -2,7 +2,7 @@
 
 #include <reent.h>
 #include <unistd.h>
-
+/*
 int
 _DEFUN (isatty, (fd),
      int fd)
@@ -13,3 +13,4 @@ _DEFUN (isatty, (fd),
   return _isatty (fd);
 #endif
 }
+*/

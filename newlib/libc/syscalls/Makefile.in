@@ -57,7 +57,7 @@ lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
 am__objects_1 = lib_a-sysclose.$(OBJEXT) lib_a-sysfcntl.$(OBJEXT) \
 	lib_a-sysfstat.$(OBJEXT) lib_a-sysgetpid.$(OBJEXT) \
-	lib_a-sysgettod.$(OBJEXT) lib_a-sysisatty.$(OBJEXT) \
+	lib_a-sysgettod.$(OBJEXT) \
 	lib_a-syskill.$(OBJEXT) lib_a-syslink.$(OBJEXT) \
 	lib_a-syslseek.$(OBJEXT) lib_a-sysopen.$(OBJEXT) \
 	lib_a-sysread.$(OBJEXT) lib_a-syssbrk.$(OBJEXT) \
@@ -72,7 +72,7 @@ lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libsyscalls_la_LIBADD =
 am__objects_3 = sysclose.lo sysfcntl.lo sysfstat.lo sysgetpid.lo \
-	sysgettod.lo sysisatty.lo syskill.lo syslink.lo syslseek.lo \
+	sysgettod.lo syskill.lo syslink.lo syslseek.lo \
 	sysopen.lo sysread.lo syssbrk.lo sysstat.lo systimes.lo \
 	sysunlink.lo syswrite.lo
 @ELIX_LEVEL_1_FALSE@@ELIX_LEVEL_2_FALSE@am__objects_4 = sysexecve.lo \
@@ -252,7 +252,6 @@ GENERAL_SOURCES = \
 	sysfstat.c	\
 	sysgetpid.c	\
 	sysgettod.c	\
-	sysisatty.c	\
 	syskill.c	\
 	syslink.c	\
 	syslseek.c	\
@@ -381,12 +380,6 @@ lib_a-sysgettod.o: sysgettod.c
 
 lib_a-sysgettod.obj: sysgettod.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-sysgettod.obj `if test -f 'sysgettod.c'; then $(CYGPATH_W) 'sysgettod.c'; else $(CYGPATH_W) '$(srcdir)/sysgettod.c'; fi`
-
-lib_a-sysisatty.o: sysisatty.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-sysisatty.o `test -f 'sysisatty.c' || echo '$(srcdir)/'`sysisatty.c
-
-lib_a-sysisatty.obj: sysisatty.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-sysisatty.obj `if test -f 'sysisatty.c'; then $(CYGPATH_W) 'sysisatty.c'; else $(CYGPATH_W) '$(srcdir)/sysisatty.c'; fi`
 
 lib_a-syskill.o: syskill.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-syskill.o `test -f 'syskill.c' || echo '$(srcdir)/'`syskill.c
