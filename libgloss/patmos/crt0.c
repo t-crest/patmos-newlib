@@ -75,12 +75,6 @@ extern int atexit(void (*function)(void));
 extern void exit(int status) __attribute__((noinline));
 
 //******************************************************************************
-/// __env - values of environment vairables.
-char *__env[1] = {0};
-
-/// environ - values of environment vairables.
-char **environ = __env;
-
 /// _loader_baseaddr - the base address of the loading function (one per core)
 unsigned _loader_baseaddr[MAX_CORES];
 /// _loader_off - the offset of the loading function (one per core)

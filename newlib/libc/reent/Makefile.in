@@ -57,7 +57,7 @@ lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
 am__objects_1 = lib_a-closer.$(OBJEXT) lib_a-reent.$(OBJEXT) \
 	lib_a-impure.$(OBJEXT) lib_a-fcntlr.$(OBJEXT) \
-	lib_a-fstatr.$(OBJEXT) lib_a-getreent.$(OBJEXT) \
+	lib_a-fstatr.$(OBJEXT) \
 	lib_a-gettimeofdayr.$(OBJEXT) lib_a-isattyr.$(OBJEXT) \
 	lib_a-linkr.$(OBJEXT) lib_a-lseekr.$(OBJEXT) \
 	lib_a-mkdirr.$(OBJEXT) lib_a-openr.$(OBJEXT) \
@@ -83,7 +83,7 @@ lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libreent_la_LIBADD =
 am__objects_6 = closer.lo reent.lo impure.lo fcntlr.lo fstatr.lo \
-	getreent.lo gettimeofdayr.lo isattyr.lo linkr.lo lseekr.lo \
+	gettimeofdayr.lo isattyr.lo linkr.lo lseekr.lo \
 	mkdirr.lo openr.lo readr.lo renamer.lo signalr.lo signgam.lo \
 	sbrkr.lo statr.lo timesr.lo unlinkr.lo writer.lo
 @HAVE_STDIO64_DIR_TRUE@am__objects_7 = fstat64r.lo lseek64r.lo \
@@ -287,7 +287,6 @@ GENERAL_SOURCES = \
 	impure.c \
 	fcntlr.c \
 	fstatr.c \
-	getreent.c \
 	gettimeofdayr.c \
 	isattyr.c \
 	linkr.c \
@@ -434,12 +433,6 @@ lib_a-fstatr.o: fstatr.c
 
 lib_a-fstatr.obj: fstatr.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-fstatr.obj `if test -f 'fstatr.c'; then $(CYGPATH_W) 'fstatr.c'; else $(CYGPATH_W) '$(srcdir)/fstatr.c'; fi`
-
-lib_a-getreent.o: getreent.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-getreent.o `test -f 'getreent.c' || echo '$(srcdir)/'`getreent.c
-
-lib_a-getreent.obj: getreent.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-getreent.obj `if test -f 'getreent.c'; then $(CYGPATH_W) 'getreent.c'; else $(CYGPATH_W) '$(srcdir)/getreent.c'; fi`
 
 lib_a-gettimeofdayr.o: gettimeofdayr.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-gettimeofdayr.o `test -f 'gettimeofdayr.c' || echo '$(srcdir)/'`gettimeofdayr.c
