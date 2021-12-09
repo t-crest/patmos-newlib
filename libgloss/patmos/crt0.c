@@ -65,9 +65,6 @@ void __corethread_worker(void) __attribute__((noinline));
 /// Note: LLVM currently silently ignores attributes for extern functions!
 extern int main(int argc, char **argv) __attribute__((noinline));
 
-/// memset - set memory content.
-void *memset(void *s, int c, size_t n);
-
 /// atexit - register call backs on program termination.
 extern int atexit(void (*function)(void));
 
@@ -172,10 +169,6 @@ void _start()
 void __start() __attribute__((noinline));
 void __start()
 {
-  // ---------------------------------------------------------------------------  
-  // clear the BSS section
-  // memset(&__bss_start, 0, &_end - &__bss_start);
-
   // ---------------------------------------------------------------------------  
   // initialize reentrancy structure
   __initreent();
