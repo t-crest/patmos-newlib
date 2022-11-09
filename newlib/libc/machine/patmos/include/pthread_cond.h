@@ -10,6 +10,9 @@
 #include <pthread_mutex.h>
 #include <time.h>
 
+/* just for the LF pthread library */
+#define PTHREAD_PROCESS_PRIVATE 0
+
 typedef struct
 {
   clockid_t clock_id;
