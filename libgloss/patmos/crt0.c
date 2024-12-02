@@ -65,9 +65,6 @@ void __corethread_worker(void) __attribute__((noinline));
 /// Note: LLVM currently silently ignores attributes for extern functions!
 extern int main(int argc, char **argv) __attribute__((noinline));
 
-/// memset - set memory content.
-void *memset(void *s, int c, size_t n);
-
 /// atexit - register call backs on program termination.
 extern int atexit(void (*function)(void));
 
@@ -162,7 +159,7 @@ void _start()
     "nop  ;"	// no need for a 'ret'
     :
     : [core_id] "i" (__PATMOS_CPUINFO_COREID), [next_fn] "i" (__start)
-    : "$r1", "$r2", "$r3", "$r4", "$r5", "$r6"
+    : "r1", "r2", "r3", "r4", "r5", "r6"
   );
 }
 
@@ -172,10 +169,6 @@ void _start()
 void __start() __attribute__((noinline));
 void __start()
 {
-  // ---------------------------------------------------------------------------  
-  // clear the BSS section
-  // memset(&__bss_start, 0, &_end - &__bss_start);
-
   // ---------------------------------------------------------------------------  
   // initialize reentrancy structure
   __initreent();
@@ -193,10 +186,12 @@ void __start()
 
   // retrieve the id of the current core
   const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
-  if (id == 0) {
-      
-    // ---------------------------------------------------------------------------  
-    // invoke main -- without command line options
+  
+  // Decide on main or __corethread_worker
+  void (*main_fn)() = id == 0 ? &main : &__corethread_worker;      
+    
+  // ---------------------------------------------------------------------------  
+  // invoke main -- without command line options
 
   // LLVM does not attach function attributes to declarations, we cannot mark
   // main as noinline in this file. 
@@ -204,33 +199,18 @@ void __start()
   // inlining *of main* to avoid breaking evaluation and debugging scripts.
   // We also keep the call to exit while we are at it, to make debugging traces
   // easier.
-    asm volatile ("call %0;"        // invoke main function
-                  "li   $r3 = 0;"   // argc
-                  "li   $r4 = 0;"   // argv
+  asm volatile (  "call %0;"        // invoke main or __corethread_worker function
+                  "li   $r3 = 0;"   // argc for main
+                  "li   $r4 = 0;"   // argv for main
                   "nop  ;"
                   "call %1;"        // terminate program and invoke exit
                   "mov  $r3 = $r1;" // get exit code (in delay slot)
                   "nop  ;"
                   "nop  ;"
-                  : : "r" (&main), "r" (&exit)
-                  : "$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8",
-                    "$r9", "$r10", "$r11", "$r12", "$r13", "$r14", "$r15", "$r16",
-                    "$r17", "$r18", "$r19", "$r20");
-  } else {    
-    asm volatile ("call %0;"        // invoke __corethread_worker function
-                  "nop;"
-                  "nop;"
-                  "nop  ;"
-                  "call %1;"        // terminate program and invoke exit
-                  "mov  $r3 = $r1;" // get exit code (in delay slot)
-                  "nop  ;"
-                  "nop  ;"
-                   : : "r" (&__corethread_worker), "r" (&exit)
-                  : "$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8",
-                    "$r9", "$r10", "$r11", "$r12", "$r13", "$r14", "$r15", "$r16",
-                    "$r17", "$r18", "$r19", "$r20");
-
-  }
+                  : : "r" (main_fn), "r" (&exit)
+                  : "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8",
+                    "r9", "r10", "r11", "r12", "r13", "r14", "r15", "r16",
+                    "r17", "r18", "r19", "r20");
 
   // ---------------------------------------------------------------------------
   // in case this returns

@@ -277,7 +277,7 @@ static void inval_scache()
   asm volatile (
        "mfs $r1 = $st;\n\t"
        "mts $ss = $r1;\n\t"
-       : : : "$r1");
+       : : : "r1");
 }
 
 
@@ -295,7 +295,7 @@ static void flush_scache()
        "mfs $r2 = $st;\n\t"
        "sub $r1 = $r1, $r2\n\t"
        "sspill $r1\n\t"
-       : : : "$r1", "$r2");
+       : : : "r1", "r2");
 }
 
 /**
