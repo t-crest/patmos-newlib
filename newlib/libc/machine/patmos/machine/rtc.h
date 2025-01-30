@@ -42,20 +42,24 @@
  */
 static inline unsigned long long get_cpu_cycles(void) {
   unsigned clo, chi;
-
-  // TODO this code is identical to libgloss/patmos/time.c, share code.
-
-  // Prevent the compiler from moving the read over other instructions 
-  // or into a call delay slot behind the call miss stall
-  asm volatile ("" : : : "memory");
-
   _iodev_ptr_t hi_clock = (_iodev_ptr_t)(__PATMOS_TIMER_HICLK);
-  _iodev_ptr_t lo_clock = (_iodev_ptr_t)(__PATMOS_TIMER_LOCLK);
 
+  // Prevent the compiler from moving memory operation across this boundary
+  asm volatile ("" : : : "memory");  
+  
   // Order is important here
-  clo = *lo_clock;
-  chi = *hi_clock;
+  asm volatile (
+    "lwl %0 = [%2 + 1];"
+    "lwl %1 = [%2];"
+    :
+    "=r" (clo),
+    "=r" (chi)
+    :
+    "r" (hi_clock)
+    :
+  );
 
+  // Prevent the compiler from moving memory operation across this boundary
   asm volatile ("" : : : "memory");
 
   return (((unsigned long long) chi) << 32) | clo;
@@ -66,20 +70,24 @@ static inline unsigned long long get_cpu_cycles(void) {
  */
 static inline unsigned long long get_cpu_usecs(void) {
   unsigned ulo, uhi;
-
-  // TODO this code is identical to libgloss/patmos/time.c, share code.
-
-  // Prevent the compiler from moving the read over other instructions 
-  // or into a call delay slot behind the call miss stall
-  asm volatile ("" : : : "memory");
-
   _iodev_ptr_t hi_usec = (_iodev_ptr_t)(__PATMOS_TIMER_HIUSEC);
-  _iodev_ptr_t lo_usec = (_iodev_ptr_t)(__PATMOS_TIMER_LOUSEC);
 
+  // Prevent the compiler from moving memory operation across this boundary
+  asm volatile ("" : : : "memory");  
+  
   // Order is important here
-  ulo = *lo_usec;
-  uhi = *hi_usec;
+  asm volatile (
+    "lwl %0 = [%2 + 1];"
+    "lwl %1 = [%2];"
+    :
+    "=r" (ulo),
+    "=r" (uhi)
+    :
+    "r" (hi_usec)
+    :
+  );
 
+  // Prevent the compiler from moving memory operation across this boundary
   asm volatile ("" : : : "memory");
 
   return (((unsigned long long) uhi) << 32) | ulo;

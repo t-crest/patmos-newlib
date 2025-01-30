@@ -283,7 +283,7 @@ void __default_exc_handler(void) {
 
 void __corethread_worker(void) {
   const int id = *((_iodev_ptr_t)(__PATMOS_CPUINFO_COREID));
-  unsigned long long time;
+  //unsigned long long time;
   boot_info->slave[id].status = STATUS_RETURN;
     
   // Wait for corethread_create request or application exit
@@ -301,7 +301,7 @@ void __corethread_worker(void) {
       }
     }
     boot_info->slave[id].status = STATUS_RETURN;
-    time = get_cpu_usecs();
+    //time = get_cpu_usecs();
     //while(get_cpu_usecs() < time+10) {
     //  // Wait for 10 micro seconds before checking again
     //}

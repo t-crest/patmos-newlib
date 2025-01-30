@@ -56,30 +56,6 @@ typedef void (*exc_handler_t)(void);
 #define __PATMOS_TIMER_LOUSEC     (__PATMOS_TIMER_BASE + 0x0c)
 
 /**
- * Get the current RTC microsecond value.
- */
-static inline unsigned long long get_cpu_usecs(void) {
-  unsigned ulo, uhi;
-
-  // TODO this code is identical to libgloss/patmos/time.c, share code.
-
-  // Prevent the compiler from moving the read over other instructions 
-  // or into a call delay slot behind the call miss stall
-  asm volatile ("" : : : "memory");
-
-  _iodev_ptr_t hi_usec = (_iodev_ptr_t)(__PATMOS_TIMER_HIUSEC);
-  _iodev_ptr_t lo_usec = (_iodev_ptr_t)(__PATMOS_TIMER_LOUSEC);
-
-  // Order is important here
-  ulo = *lo_usec;
-  uhi = *hi_usec;
-
-  asm volatile ("" : : : "memory");
-
-  return (((unsigned long long) uhi) << 32) | ulo;
-}
-
-/**
  * Attribute for pointers into main memory using cache bypass. Use as
  *
  * _UNCACHED int *p = (_UNCACHED int *) &mydata;
