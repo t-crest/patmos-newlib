@@ -8,6 +8,7 @@
 
 #include <errno.h>
 #include <machine/patmos.h>
+#include <machine/rtc.h>
 #include "patmos.h"
 
 static inline int context_save(void) {

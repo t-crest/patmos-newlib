@@ -28,8 +28,8 @@ typedef pthread_mutex_t _LOCK_RECURSIVE_T;
 #define __LOCK_INIT_RECURSIVE(class,lock) \
   class _LOCK_RECURSIVE_T lock = PTHREAD_MUTEX_RECURSIVE_INITIALIZER;
 
-#define __lock_init(lock)                  pthread_mutex_init(&(lock), PTHREAD_MUTEX_NORMAL)
-#define __lock_init_recursive(lock)        pthread_mutex_init(&(lock), PTHREAD_MUTEX_RECURSIVE)
+#define __lock_init(lock)                  lock = PTHREAD_MUTEX_NORMAL_INITIALIZER
+#define __lock_init_recursive(lock)        lock = PTHREAD_MUTEX_RECURSIVE_INITIALIZER
 #define __lock_close(lock)                 pthread_mutex_destroy(&(lock))
 #define __lock_close_recursive(lock)       pthread_mutex_destroy(&(lock))
 #define __lock_acquire(lock)               pthread_mutex_lock(&(lock))
