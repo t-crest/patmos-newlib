@@ -132,8 +132,8 @@ void _start()
     // store return information of caller
     "li $r2 = _loader_baseaddr;"
     "li $r3 = _loader_off;"
-    "shadd2 $r2 = $r2, $r1;" // r2 = &_loader_baseaddr[id]
-    "shadd2 $r3 = $r3, $r1;" // r3 = &_loader_off[id]
+    "shadd2 $r2 = $r1, $r2;" // r2 = &_loader_baseaddr[id]
+    "shadd2 $r3 = $r1, $r3;" // r3 = &_loader_off[id]
     "mfs $r29 = $srb;"
     "swm [$r2] = $r29;"
     "mfs $r29 = $sro;"

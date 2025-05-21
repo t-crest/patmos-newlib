@@ -46,7 +46,6 @@
  * TODO: Organize address space, maybe this should be generated otherwise
  * changes here should match definitions of config.xml
  */
- 
 #define PATMOS_IO_CPUINFO  0xf0000000
 #define PATMOS_IO_EXCUNIT  0xf0010000
 #define PATMOS_IO_TIMER    0xf0020000
@@ -65,15 +64,15 @@
 #define PATMOS_IO_ETH1     0xf00e0000
 #define PATMOS_IO_SD       0xf00f0000
 #define PATMOS_IO_SSPM     0xf00f0000
+
 /**
  * Base addresses of cmp IO devices.
  * Should only be defined here and used from the include file.
  */
-
 #define PATMOS_IO_ARGO      0xe0000000
 #define PATMOS_IO_HARDLOCK  0xe8010000
 #define PATMOS_IO_SPM       0xe8020000
-#define PATMOS_IO_ONEWAYMEM 0xe8030000
+#define PATMOS_IO_ENVINFO   0xe8030000
 #define PATMOS_IO_SPM2      0xe8040000
 #define PATMOS_IO_OWNSPM    0xe8050000
 #define PATMOS_IO_SPMPOOL   0xe8060000
