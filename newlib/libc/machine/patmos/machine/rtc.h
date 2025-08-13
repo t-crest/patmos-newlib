@@ -52,7 +52,7 @@ static inline unsigned long long get_cpu_cycles(void) {
     "lwl %0 = [%2 + 1];"
     "lwl %1 = [%2];"
     :
-    "=r" (clo),
+    "=&r" (clo),
     "=r" (chi)
     :
     "r" (hi_clock)
